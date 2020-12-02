@@ -75,18 +75,30 @@
   function move(nowIndex) {
     piecesArr[nowIndex] = nowShould
     render()
-    let lastShould = nowShould
-    nowShould = 3 - nowShould
-    let result = isWin(piecesArr, lastShould)
-    if (result) {
-      setTimeout(() => {
-        if (result) alert(lastShould + ' 赢了')
-      }, 0);
+    let oldShould = nowShould
+    nowShould = 3 - nowShould // 下次的下棋者
+    if (isWin(piecesArr, oldShould)) return alert((oldShould === 1 ? '❌' : '⭕️') + ' 赢了')
+    // 判断另一个人是否即将胜利
+    if (willWin(piecesArr, nowShould)) console.log((nowShould === 1 ? '❌' : '⭕️') + ' 下对了会赢')
+    else console.log((nowShould === 1 ? '❌' : '⭕️') + ' 下一步无论如何赢不了')
+  }
+
+  /**
+   * willNum 即将胜利
+   * nowArr {Array} 当前的数组
+   * willNum {Number} 验证是否即将胜利的num
+   */
+  function willWin(nowArr, willNum) {
+    for (let i = 0; i < nowArr.length; i++) {
+      if (nowArr[i]) continue
+      let newArr = [...nowArr]
+      newArr[i] = willNum
+      if (isWin(newArr, willNum)) return true
     }
   }
 
   /**
-   * 判断是否胜利
+   * 判断是否胜利了
    * arr {Array} 进行判断的棋盘棋子数组
    * winNum {Number} 判断胜者 1 或者 2
    */
