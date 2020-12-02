@@ -9,8 +9,11 @@
       padding: 0;
       margin: 0;
     }
+    body {
+      padding-left: 40px;
+    }
     #box {
-      margin: 40px;
+      margin: 40px 40px 40px 0;
     }
     #box div {
       display: inline-block;
@@ -29,18 +32,20 @@
 </head>
 <body>
   <div id="box"></div>
+  <div id="tip"></div>
 </body>
 <script>
   // 盒子div
   let boxDom = document.getElementById('box')
+  let tipDom = document.getElementById('tip')
 
   let nowShould = 1 // 现在该谁下了, 1 或者 2
 
   // 棋子情况数组
   let piecesArr = [
     0, 0, 0,
-    0, 1, 0,
-    0, 0, 2,
+    0, 0, 0,
+    0, 0, 0,
   ]
 
   render()
@@ -62,7 +67,7 @@
         cellDom.onclick = function() {
           let content = this.innerText
           if (content) return // 已经有值了,不处理
-          move(nowIndex)
+          move(nowIndex, true)
         }
 
         boxDom.appendChild(cellDom)
@@ -72,29 +77,90 @@
   }
 
   // 去走棋
-  function move(nowIndex) {
+  function move(nowIndex, isPeople) {
     piecesArr[nowIndex] = nowShould
     render()
     let oldShould = nowShould
     nowShould = 3 - nowShould // 下次的下棋者
+
+    // 判断是不是已经有人赢了
     if (isWin(piecesArr, oldShould)) return alert((oldShould === 1 ? '❌' : '⭕️') + ' 赢了')
     // 判断另一个人是否即将胜利
-    if (willWin(piecesArr, nowShould)) console.log((nowShould === 1 ? '❌' : '⭕️') + ' 下对了会赢')
-    else console.log((nowShould === 1 ? '❌' : '⭕️') + ' 下一步无论如何赢不了')
+    let text = ''
+    if (willWin(piecesArr, nowShould)) text = (nowShould === 1 ? '❌' : '⭕️') + ' 下对了会赢'
+    else text = (nowShould === 1 ? '❌' : '⭕️') + ' 下一步无论如何赢不了'
+    let pDom = document.createElement('p')
+    pDom.innerText = text
+    tipDom.appendChild(pDom)
+
+    // 是人走的,那后面需要机器人走了
+    if (isPeople) robotGo()
+  }
+
+  // 机器人下棋
+  function robotGo() {
+    // 找出对自己最有利的一步
+    let { pointIndex, result } = bestPosition(piecesArr, nowShould)
+    if (pointIndex !== null) move(pointIndex)
+  }
+
+  /**
+   * 找到最有利的位置和即将的结果
+   * tempArr {Array} 当前点位
+   * willPosition {Number} 落下棋子的索引值
+   * willNum {Number} 即将下棋者
+   * return {}
+   */
+  function bestPosition(tempArr, willNum) {
+    // 下一步是否能直接胜利
+    let nextWinIndex = willWin(tempArr, willNum)
+    if (typeof nextWinIndex === 'number') return {
+      result: 1,
+      pointIndex: nextWinIndex,
+    }
+
+    let bestResult = {
+      result: -2,
+      pointIndex: null,
+    }
+
+    // 依次的下
+    for (let i = 0; i < tempArr.length; i++) {
+      if (tempArr[i]) continue
+      let newArr = [...tempArr]
+      newArr[i] = willNum
+
+      // 对手最好的结果
+      let rivalBestResult = bestPosition(newArr, 3 - willNum).result
+      let meBadResult = -rivalBestResult // 对我们最差的结果
+      // 如果我们最差的结果都比 bestResult 强,则更新
+      if (meBadResult > bestResult.result) {
+        bestResult = {
+          result: meBadResult,
+          pointIndex: i
+        }
+      }
+    }
+
+    // 如果if执行了,说明最好的结果连失败都不是...实际是说明for循环中,一步也下不了,也就是无地可下了,也就是下完了,平局
+    if (bestResult.result === -2) bestResult.result = 0
+    return bestResult
   }
 
   /**
    * willNum 即将胜利
    * nowArr {Array} 当前的数组
    * willNum {Number} 验证是否即将胜利的num
+   * return {Number|null} 下了能赢的索引值 | 无论如何也赢不了
    */
   function willWin(nowArr, willNum) {
     for (let i = 0; i < nowArr.length; i++) {
       if (nowArr[i]) continue
       let newArr = [...nowArr]
       newArr[i] = willNum
-      if (isWin(newArr, willNum)) return true
+      if (isWin(newArr, willNum)) return i
     }
+    return null
   }
 
   /**
