@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TicTacToe</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+    #box {
+      margin: 40px;
+    }
+    #box div {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      background-color: green;
+      line-height: 40px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 30px;
+      border: 1px solid #aaa;
+      cursor: pointer;
+    }
+    /* #box  */
+  </style>
+</head>
+<body>
+  <div id="box"></div>
+</body>
+<script>
+  // 盒子div
+  let boxDom = document.getElementById('box')
+
+  let nowShould = 1 // 现在该谁下了, 1 或者 2
+
+  // 棋子情况数组
+  let piecesArr = [
+    0, 0, 0,
+    0, 1, 0,
+    0, 0, 2,
+  ]
+
+  render()
+
+  // 渲染一次
+  function render() {
+    // 清空盒子
+    boxDom.innerHTML = ''
+    for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
+      for (let columnIndex = 0; columnIndex < 3; columnIndex++) {
+        let nowIndex = rowIndex * 3 + columnIndex
+        let nowNum = piecesArr[nowIndex]
+
+        let cellDom = document.createElement('div')
+        cellDom.innerText =
+          nowNum === 1 ? '❌' : 
+          nowNum === 2 ? '⭕️' : ''
+
+        cellDom.onclick = function() {
+          let content = this.innerText
+          if (content) return // 已经有值了,不处理
+          move(nowIndex)
+        }
+
+        boxDom.appendChild(cellDom)
+      }
+      if (rowIndex < 2) boxDom.appendChild(document.createElement('br'))
+    }
+  }
+
+  // 去走棋
+  function move(nowIndex) {
+    piecesArr[nowIndex] = nowShould
+    render()
+    let lastShould = nowShould
+    nowShould = 3 - nowShould
+    let result = isWin(piecesArr, lastShould)
+    if (result) {
+      setTimeout(() => {
+        if (result) alert(lastShould + ' 赢了')
+      }, 0);
+    }
+  }
+
+  /**
+   * 判断是否胜利
+   * arr {Array} 进行判断的棋盘棋子数组
+   * winNum {Number} 判断胜者 1 或者 2
+   */
+  function isWin(arr, winNum) {
+    // 判断三行
+    for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
+      if (arr[rowIndex * 3 + 0] === arr[rowIndex * 3 + 1] && arr[rowIndex * 3 + 0] === arr[rowIndex * 3 + 2] && arr[rowIndex * 3 + 0] === winNum) return true
+    }
+    // 判断三列
+    for (let columnIndex = 0; columnIndex < 3; columnIndex++) {
+      if (arr[columnIndex + 0] === arr[columnIndex + 3] && arr[columnIndex + 0] === arr[columnIndex + 6] && arr[columnIndex + 0] === winNum) return true
+    }
+    // 判断两个斜边
+    if (arr[0] === arr[4] && arr[0] === arr[8] && arr[0] === winNum) return true
+    if (arr[2] === arr[4] && arr[2] === arr[6] && arr[2] === winNum) return true
+  }
+
+
+</script>
+</html>
