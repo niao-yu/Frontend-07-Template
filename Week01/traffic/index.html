@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>红绿灯</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      margin-left: 50px;
+      margin-top: 50px;
+    }
+    .tip {
+      width: 180px;
+      text-align: right;
+      margin-right: 40px;
+    }
+    .box {
+      display: flex;
+      align-items: center;
+    }
+    .box div {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #aaa;
+    }
+    .box div + div {
+      margin-left: 20px;
+    }
+    .red.active {
+      background-color: red;
+    }
+    .green.active {
+      background-color: green;
+    }
+    .yellow.active {
+      background-color: yellow;
+    }
+  </style>
+</head>
+<body>
+  <div class="item">
+    <div class="tip">回调方法版本：</div>
+    <div class="box callback">
+      <div class="red"></div>
+      <div class="green"></div>
+      <div class="yellow"></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="tip">Promise 版：</div>
+    <div class="box promise">
+      <div class="red"></div>
+      <div class="green"></div>
+      <div class="yellow"></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="tip">async/await 版：</div>
+    <div class="box asyncAwait">
+      <div class="red"></div>
+      <div class="green"></div>
+      <div class="yellow"></div>
+    </div>
+  </div>
+
+
+
+</body>
+<script>
+
+
+  // 生成修改红绿灯的函数的函数
+  const getChangeTo = function (dom_1, dom_2, dom_3) {
+    return function (targetDom) {
+      dom_1.classList.remove('active')
+      dom_2.classList.remove('active')
+      dom_3.classList.remove('active')
+
+      targetDom.classList.add('active')
+    }
+  }
+
+  callback()
+  promise()
+  asyncAwait()
+
+
+  // 第一种实现方式 callback
+  function callback() {
+    let redDom = document.querySelector('.callback .red')
+    let greenDom = document.querySelector('.callback .green')
+    let yellowDom = document.querySelector('.callback .yellow')
+
+    const changeTo = getChangeTo(redDom, greenDom, yellowDom)
+
+    start()
+
+    function start() {
+      changeTo(redDom)
+
+      setTimeout(() => {
+        changeTo(greenDom)
+          setTimeout(() => {
+          changeTo(yellowDom)
+            setTimeout(() => {
+              start()
+          }, 1000 * 1);
+        }, 1000 * 2);
+      }, 1000 * 3);
+    }
+  }
+
+  // 第二种实现方式 Promise
+  function promise() {
+    let redDom = document.querySelector('.promise .red')
+    let greenDom = document.querySelector('.promise .green')
+    let yellowDom = document.querySelector('.promise .yellow')
+
+    const changeTo = getChangeTo(redDom, greenDom, yellowDom)
+
+    start()
+
+    function start() {
+      moveTo(redDom, 3000)
+      .then(() => {
+        return moveTo(greenDom, 1000)
+      })
+      .then(() => {
+        return moveTo(yellowDom, 2000)
+      })
+      .then(start)
+    }
+
+    function moveTo(dom, time) {
+      return new Promise(resolve => {
+        changeTo(dom)
+        setTimeout(resolve, time);
+      })
+    }
+
+    
+    function sleep(time) {
+      return new Promise(resolve => {
+        setTimeout(resolve, time * 1000)
+      })
+    }
+
+  }
+
+  // 第三种实现方式 async/await
+  function asyncAwait() {
+    let redDom = document.querySelector('.asyncAwait .red')
+    let greenDom = document.querySelector('.asyncAwait .green')
+    let yellowDom = document.querySelector('.asyncAwait .yellow')
+
+    const changeTo = getChangeTo(redDom, greenDom, yellowDom)
+
+    start()
+
+    async function start() {
+      changeTo(redDom)
+      await sleep(2)
+      changeTo(greenDom)
+      await sleep(3)
+      changeTo(yellowDom)
+      await sleep(1)
+      start()
+    }
+
+    function sleep(time) {
+      return new Promise(resolve => {
+        setTimeout(resolve, time * 1000)
+      })
+    }
+  }
+
+</script>
+</html>
