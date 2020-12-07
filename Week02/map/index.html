@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>地图</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      line-height: 1em;
+    }
+    body {
+      padding: 50px 0 0 50px;
+      display: flex;
+    }
+    .box {
+      width: 700px;
+      height: 700px;
+      overflow: hidden;
+      display: flex;
+      flex-wrap: wrap;
+      box-shadow: inset 0 0 1px 0 #666;
+    }
+    .box .ceil {
+      width: 1%;
+      height: 1%;
+      box-shadow: inset 0 0 1px 0 #666;
+    }
+    .box .ceil.active {
+      background-color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="box"></div>
+  <button class="save">save</button>
+</body>
+<script>
+  let boxDom = document.querySelector('.box')
+  let buttonDom = document.querySelector('.save')
+  let mousedown = false
+
+  let mapArr = []
+  let tempMapStr = localStorage.getItem('map')
+  if (tempMapStr) mapArr = JSON.parse(tempMapStr)
+  if (!mapArr || !mapArr.length) mapArr = new Array(100 * 100).fill(0)
+
+  init()
+  bineEvent()
+  function init() {
+    boxDom.innerHTML = ''
+    for (let row = 0; row < 100; row++) {
+      for (let column = 0; column < 100; column++) {
+        let nowIndex = row * 100 + column
+        let dom = document.createElement('div')
+        dom.index = nowIndex
+        dom.classList.add('ceil')
+        if (mapArr[nowIndex] === 1) dom.classList.add('active')
+        boxDom.appendChild(dom)
+      }
+    }
+  }
+
+  function draw() {
+
+  }
+
+  function bineEvent() {
+    buttonDom.onclick = function() {
+      localStorage.setItem('map', JSON.stringify(mapArr))
+    }
+    boxDom.onmousedown = function() {
+      mousedown = true
+    }
+    boxDom.onmouseup = function() {
+      mousedown = false
+    }
+
+    boxDom.addEventListener('contextmenu', function(e) {
+      mapArr = new Array(100 * 100).fill(0)
+      init()
+      e.preventDefault()
+    })
+
+    boxDom.addEventListener('mousemove', function(e) {
+      if (!mousedown) return
+      let targetDom = e.target
+      let nowIndex = targetDom.index
+      if (mapArr[nowIndex]) return
+      mapArr[nowIndex] = 1
+      targetDom.classList.add('active')
+    })
+  }
+</script>
+</html>
