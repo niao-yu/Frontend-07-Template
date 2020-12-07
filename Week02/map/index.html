@@ -30,6 +30,12 @@
     .box .ceil.active {
       background-color: #666;
     }
+    .box .ceil.search {
+      background-color: #74a;
+    }
+    .box .ceil.searchSuccess {
+      background-color: #a47;
+    }
   </style>
 </head>
 <body>
@@ -48,6 +54,9 @@
 
   init()
   bineEvent()
+
+  getBestPath([0, 0], [99, 99])
+
   function init() {
     boxDom.innerHTML = ''
     for (let row = 0; row < 100; row++) {
@@ -62,13 +71,64 @@
     }
   }
 
-  function draw() {
+  async function getBestPath(startPoint, endPoint) {
+    let tempMap = Object.create(mapArr)
 
+    let pathArr = [startPoint]
+
+    function pointToIndex([x, y]) {
+      if (x < 0 || x >= 100 || y < 0 || y >= 100) return undefined
+      return 100 * y + x
+    }
+
+    async function get([x, y], parentPoint) {
+      let nowIndex = pointToIndex([x, y])
+      if (tempMap[nowIndex]) return
+      tempMap[nowIndex] = parentPoint
+      pathArr.push([x, y])
+      if (x === endPoint[0] && y === endPoint[1]) {
+        return true
+      }
+    }
+
+    while (pathArr.length) {
+      let point = pathArr.shift()
+      let [x, y] = point
+      if (await get([x - 1, y], point)) break
+      if (await get([x + 1, y], point)) break
+      if (await get([x, y - 1], point)) break
+      if (await get([x, y + 1], point)) break
+      if (await get([x + 1, y - 1], point)) break
+      if (await get([x + 1, y + 1], point)) break
+      if (await get([x - 1, y - 1], point)) break
+      if (await get([x - 1, y + 1], point)) break
+    }
+
+    let endIndex = pointToIndex(endPoint)
+
+    if (Array.isArray(tempMap[endIndex])) { // 找到点了
+      let thisIndex = endIndex
+      while (true) {
+        let nextPoint = tempMap[thisIndex]
+        let dom = boxDom.childNodes[thisIndex]
+        if (dom) dom.classList.add('searchSuccess')
+        if (nextPoint[0] === startPoint[0] && nextPoint[1] === startPoint[1]) break
+        else {
+          thisIndex = pointToIndex(nextPoint)
+          await sleep(10)
+        }
+      }
+    }
+
+  }
+
+  async function sleep(time) {
+    return new Promise(resolve => setTimeout(resolve, time))
   }
 
   function bineEvent() {
     buttonDom.onclick = function() {
-      localStorage.setItem('map', JSON.stringify(mapArr))
+      localStorage.setItem('map', JSON.stringify(mapArr.map(v => v === 1 ? v : 0)))
     }
     boxDom.onmousedown = function() {
       mousedown = true
