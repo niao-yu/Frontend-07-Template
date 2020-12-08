@@ -27,12 +27,8 @@
       height: 1%;
       box-shadow: inset 0 0 1px 0 #666;
     }
-    .box .ceil.active {
-      box-shadow: none;
-      background-color: #000;
-    }
     .box .ceil.search {
-      background-color: #666;
+      background-color: #aaa;
     }
     .box .ceil.searchSuccess {
       background-color: #9ff;
@@ -42,6 +38,10 @@
     }
     .box .ceil.target {
       background-color: red;
+    }
+    .box .ceil.active {
+      box-shadow: none;
+      background-color: #000;
     }
   </style>
 </head>
@@ -99,10 +99,10 @@
   if (tempMapStr) mapArr = JSON.parse(tempMapStr)
   if (!mapArr || !mapArr.length) mapArr = new Array(100 * 100).fill(0)
 
-  init()
-  bineEvent()
+  init() // 初始化棋盘
+  bineEvent() // 绑定事件
 
-  getBestPath([0, 0], [7, 15])
+  getBestPath([0, 0], [7, 15]) // 开始寻路
 
   function init() {
     boxDom.innerHTML = ''
@@ -118,47 +118,26 @@
     }
   }
 
+  // 启动寻路
   async function getBestPath(startPoint, endPoint) {
     let tempMap = Object.create(mapArr)
-
     let pathArr = new PathArr(startPoint, endPoint)
 
-
-    let dom_start = boxDom.childNodes[pointToIndex(startPoint)]
-    if (dom_start) dom_start.classList.add('start')
-
-    let dom_end = boxDom.childNodes[pointToIndex(endPoint)]
-    if (dom_end) dom_end.classList.add('target')
-
-    function pointToIndex([x, y]) {
-      return 100 * y + x
-    }
-
-    async function get([x, y], parentPoint) {
-      let nowIndex = pointToIndex([x, y])
-      if (x < 0 || x >= 100 || y < 0 || y >= 100) return
-      if (tempMap[nowIndex]) return
-      tempMap[nowIndex] = parentPoint
-      pathArr.give([x, y])
-      let dom = boxDom.childNodes[nowIndex]
-      if (dom) dom.classList.add('search')
-      await sleep(6)
-      if (x === endPoint[0] && y === endPoint[1]) {
-        return true
-      }
-    }
+    // 标记起点和终点
+    flagPoint(pointToIndex(startPoint), 'start')
+    flagPoint(pointToIndex(endPoint), 'target')
 
     while (pathArr.length) {
       let point = pathArr.get()
       let [x, y] = point
-      if (await get([x - 1, y], point)) break
-      if (await get([x + 1, y], point)) break
-      if (await get([x, y - 1], point)) break
-      if (await get([x, y + 1], point)) break
-      if (await get([x + 1, y - 1], point)) break
-      if (await get([x + 1, y + 1], point)) break
-      if (await get([x - 1, y - 1], point)) break
-      if (await get([x - 1, y + 1], point)) break
+      if (await insert([x - 1, y], point)) break
+      if (await insert([x + 1, y], point)) break
+      if (await insert([x, y - 1], point)) break
+      if (await insert([x, y + 1], point)) break
+      if (await insert([x + 1, y - 1], point)) break
+      if (await insert([x + 1, y + 1], point)) break
+      if (await insert([x - 1, y - 1], point)) break
+      if (await insert([x - 1, y + 1], point)) break
     }
 
     let endIndex = pointToIndex(endPoint)
@@ -167,8 +146,7 @@
       let thisIndex = endIndex
       while (true) {
         let nextPoint = tempMap[thisIndex]
-        let dom = boxDom.childNodes[thisIndex]
-        if (dom) dom.classList.add('searchSuccess')
+        flagPoint(thisIndex, 'searchSuccess')
         if (nextPoint[0] === startPoint[0] && nextPoint[1] === startPoint[1]) break
         else {
           thisIndex = pointToIndex(nextPoint)
@@ -177,12 +155,39 @@
       }
     }
 
+    // 判断获取并标记一个点寻路
+    async function insert([x, y], parentPoint) {
+      let nowIndex = pointToIndex([x, y])
+      if (x < 0 || x >= 100 || y < 0 || y >= 100) return
+      if (tempMap[nowIndex]) return
+      tempMap[nowIndex] = parentPoint
+      pathArr.give([x, y])
+      flagPoint(nowIndex, 'search')
+      await sleep(6)
+      if (x === endPoint[0] && y === endPoint[1]) {
+        return true
+      }
+    }
+
+    // 坐标点转为索引值
+    function pointToIndex([x, y]) {
+      return 100 * y + x
+    }
   }
 
+  // 给某个点添加类名
+  function flagPoint(index, className) {
+    let dom = boxDom.childNodes[index]
+    if (dom) dom.classList.add(className)
+    return dom
+  }
+
+  // 延时
   async function sleep(time) {
     return new Promise(resolve => setTimeout(resolve, time))
   }
 
+  // 方法绑定
   function bineEvent() {
     buttonDom.onclick = function() {
       localStorage.setItem('map', JSON.stringify(mapArr.map(v => v === 1 ? v : 0)))
