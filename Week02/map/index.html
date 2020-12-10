@@ -51,41 +51,35 @@
 </body>
 <script>
 
-  class PathArr {
-    constructor(startPoint, end) {
-      this.endPoint = end
-      this.arr = [startPoint]
+  class Sorted {
+    constructor(data, compare) {
+      this.data = data.slice()
+      this.compare = compare || ((a, b) => a - b)
     }
 
     get() {
-      if (!this.arr.length) return null
-      let minIndex = 0, minSpace = this._getSpace(this.arr[minIndex])
+      if (!this.data.length) return null
+      let minIndex = 0, min = this.data[0]
 
-      for (let i = 0; i < this.arr.length; i++) {
-        let point = this.arr[i], thisSpace = this._getSpace(point)
-        if (thisSpace < minSpace) {
-          minSpace = thisSpace
+      for (let i = 1; i < this.data.length; i++) {
+        if (this.compare(this.data[i], this.data[minIndex]) < 0) {
+          min = this.data[i]
           minIndex = i
         }
       }
 
-      let result = this.arr[minIndex]
-      this.arr[minIndex] = this.arr[this.arr.length - 1]
-      this.arr.pop()
+      this.data[minIndex] = this.data[this.data.length - 1]
+      this.data.pop()
 
-      return result
-    }
-
-    _getSpace(point) {
-      return (this.endPoint[0] - point[0]) ** 2 + (this.endPoint[1] - point[1]) ** 2
+      return min
     }
 
     give(poit) {
-      this.arr.push(poit)
+      this.data.push(poit)
     }
 
     get length() {
-      return this.arr.length
+      return this.data.length
     }
   }
 
@@ -95,14 +89,14 @@
   let mousedown = false
 
   let mapArr = []
-  let tempMapStr = localStorage.getItem('map')
-  if (tempMapStr) mapArr = JSON.parse(tempMapStr)
+  let tableStr = localStorage.getItem('map')
+  if (tableStr) mapArr = JSON.parse(tableStr)
   if (!mapArr || !mapArr.length) mapArr = new Array(100 * 100).fill(0)
 
   init() // 初始化棋盘
   bineEvent() // 绑定事件
 
-  getBestPath([0, 0], [7, 15]) // 开始寻路
+  findPath([0, 0], [7, 15]) // 开始寻路
 
   function init() {
     boxDom.innerHTML = ''
@@ -119,16 +113,16 @@
   }
 
   // 启动寻路
-  async function getBestPath(startPoint, endPoint) {
-    let tempMap = Object.create(mapArr)
-    let pathArr = new PathArr(startPoint, endPoint)
+  async function findPath(startPoint, endPoint) {
+    let table = Object.create(mapArr)
+    let quote = new Sorted([startPoint], (a, b) => distance(a) - distance(b))
 
     // 标记起点和终点
     flagPoint(pointToIndex(startPoint), 'start')
     flagPoint(pointToIndex(endPoint), 'target')
 
-    while (pathArr.length) {
-      let point = pathArr.get()
+    while (quote.length) {
+      let point = quote.get()
       let [x, y] = point
       if (await insert([x - 1, y], point)) break
       if (await insert([x + 1, y], point)) break
@@ -142,10 +136,10 @@
 
     let endIndex = pointToIndex(endPoint)
 
-    if (Array.isArray(tempMap[endIndex])) { // 找到点了
+    if (Array.isArray(table[endIndex])) { // 找到点了
       let thisIndex = endIndex
       while (true) {
-        let nextPoint = tempMap[thisIndex]
+        let nextPoint = table[thisIndex]
         flagPoint(thisIndex, 'searchSuccess')
         if (nextPoint[0] === startPoint[0] && nextPoint[1] === startPoint[1]) break
         else {
@@ -155,13 +149,17 @@
       }
     }
 
+    function distance(point) {
+      return (endPoint[0] - point[0]) ** 2 + (endPoint[1] - point[1]) ** 2
+    }
+
     // 判断获取并标记一个点寻路
     async function insert([x, y], parentPoint) {
       let nowIndex = pointToIndex([x, y])
       if (x < 0 || x >= 100 || y < 0 || y >= 100) return
-      if (tempMap[nowIndex]) return
-      tempMap[nowIndex] = parentPoint
-      pathArr.give([x, y])
+      if (table[nowIndex]) return
+      table[nowIndex] = parentPoint
+      quote.give([x, y])
       flagPoint(nowIndex, 'search')
       await sleep(6)
       if (x === endPoint[0] && y === endPoint[1]) {
