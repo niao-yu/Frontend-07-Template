@@ -51,6 +51,59 @@
 </body>
 <script>
 
+  class PathArr {
+    constructor(data, compare) {
+      this.data = data.slice()
+      this.compare = compare || ((a, b) => a - b)
+    }
+
+    get() {
+      if (!this.data.length) return null
+      let result = this.data[0], maxI = 0
+
+      let arrLength = this.data.length
+      while (maxI < arrLength - 1) {
+        if (maxI * 2 + 1 >= arrLength) break
+        if (maxI * 2 + 2 >= arrLength) {
+          this.data[maxI] = this.data[maxI * 2 + 1]
+          maxI = maxI * 2 + 1
+          break
+        }
+
+        if (this.compare(this.data[maxI * 2 + 1], this.data[maxI * 2 + 2]) < 0) {
+          this.data[maxI] = this.data[maxI * 2 + 1]
+          maxI = maxI * 2 + 1
+        } else {
+          this.data[maxI] = this.data[maxI * 2 + 2]
+          maxI = maxI * 2 + 2
+        }
+      }
+
+      if (maxI < this.data.length - 1) {
+        this.give(this.data.pop(), maxI)
+      } else this.data.pop()
+
+      return result
+    }
+
+    give(point, i = this.data.length) {
+      this.data[i] = point
+      // 排序
+      while (i > 0) {
+        let parentI = parseInt((i - 1) / 2)
+        if (this.compare(this.data[i], this.data[parentI]) < 0) {
+          this.data[i] = this.data[parentI]
+          this.data[parentI] = point
+          i = parentI
+        } else break
+      }
+    }
+
+    get length() {
+      return this.data.length
+    }
+  }
+
   class Sorted {
     constructor(data, compare) {
       this.data = data.slice()
@@ -115,7 +168,7 @@
   // 启动寻路
   async function findPath(startPoint, endPoint) {
     let table = Object.create(mapArr)
-    let quote = new Sorted([startPoint], (a, b) => distance(a) - distance(b))
+    let quote = new PathArr([startPoint], (a, b) => distance(a) - distance(b))
 
     // 标记起点和终点
     flagPoint(pointToIndex(startPoint), 'start')
