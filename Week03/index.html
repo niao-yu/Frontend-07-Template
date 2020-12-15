@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AST</title>
+</head>
+<body>
+  
+</body>
+<script>
+  start()
+
+  function start() {
+    let regexp = /([0-9\.]+)|([ \t]+)|([\r\n]+)|(\*)|(\/)|(\+)|(\-)/g
+
+    let dictionary = ['Number', 'Whitespace', 'LineTerminator', '*', '/', '+', '-']
+
+    function tokenize(source) {
+      let result = null
+      
+      // console.log(regexp.exec(source))
+      // return
+      while(true) {
+        result = regexp.exec(source)
+
+        console.warn('--------')
+
+        console.log(result)
+        // console.log(regexp.lastIndex)
+
+        if (!result) break
+
+        for (let i = 1; i <= dictionary.length; i++) {
+          if (result[i]) console.log(dictionary[i - 1])
+        }
+      }
+    }
+
+    tokenize('1024 + 10 * 25')
+  }
+</script>
+</html>
