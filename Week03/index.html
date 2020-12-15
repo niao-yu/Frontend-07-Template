@@ -16,28 +16,41 @@
 
     let dictionary = ['Number', 'Whitespace', 'LineTerminator', '*', '/', '+', '-']
 
-    function tokenize(source) {
+    function* tokenize(source) {
       let result = null
+      let lastIndex = 0
       
-      // console.log(regexp.exec(source))
-      // return
       while(true) {
+
+        lastIndex = regexp.lastIndex
         result = regexp.exec(source)
 
-        console.warn('--------')
-
-        console.log(result)
-        // console.log(regexp.lastIndex)
-
+        // 没有匹配的了
         if (!result) break
 
-        for (let i = 1; i <= dictionary.length; i++) {
-          if (result[i]) console.log(dictionary[i - 1])
+        // 多出了未匹配的字符,也就是正则中没有写匹配的字符
+        if (regexp.lastIndex - lastIndex > result[0].length) break
+
+        let token = {
+          type: undefined,
+          value: result[0],
         }
+
+        for (let i = 1; i <= dictionary.length; i++) {
+          if (result[i]) {
+            token.type = dictionary[i - 1]
+          }
+        }
+        yield token
+      }
+      yield {
+        type: 'EOF',
       }
     }
 
-    tokenize('1024 + 10 * 25')
+    for (const iterator of tokenize('1024 + 10 * 25')) {
+      console.log(iterator)
+    }
   }
 </script>
 </html>
