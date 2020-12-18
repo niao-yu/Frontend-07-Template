@@ -50,20 +50,53 @@
 
     const source = []
 
-    for (const iterator of tokenize('1024 / 10 * 25')) {
+    for (const iterator of tokenize('1024 + 10 - 25')) {
       // 过滤并收集
       if (iterator.type !== 'Whitespace' && iterator.type !== 'LineTerminator') {
         source.push(iterator)
       }
     }
 
-    console.log(JSON.parse(JSON.stringify(source)))
+    console.log('source: ', JSON.parse(JSON.stringify(source)))
     // 开始处理
+    AdditiveExpression(source)
+    console.log('结果: ', source)
 
-    function Expression(tokens) {
+    // 入口方法
+    function Expression(source) {
     }
 
     function AdditiveExpression(source) {
+      // 是未经处理的加减结构
+      if (source[0].type === 'MultiplicativeExpression') {
+        source[0] = {
+          type: 'AdditiveExpression',
+          children: [source[0]]
+        }
+        return AdditiveExpression(source)
+      }
+
+      // 是一个局部加减法的结构
+      if (source[0].type === 'AdditiveExpression' && source[1] && ['+', '-'].some(v => v === source[1].type)) {
+        // 整个局部的加减法结构
+        let node = {
+          type: 'AdditiveExpression',
+          operator: source[1].type,
+          children: []
+        }
+        node.children.push(source.shift())
+        node.children.push(source.shift())
+        MultiplicativeExpression(source)
+        node.children.push(source.shift())
+        source.unshift(node)
+        return AdditiveExpression(source)
+      }
+
+      if (source[0].type === 'AdditiveExpression') {
+        return source[0]
+      }
+      MultiplicativeExpression(source)
+      return AdditiveExpression(source)
     }
 
     // 乘法处理
@@ -79,7 +112,6 @@
 
       // 是一个局部乘除法的结构
       if (source[0].type === 'MultiplicativeExpression' && source[1] && ['*', '/'].some(v => v === source[1].type)) {
-        console.log('进来了')
         // 整个局部的乘除法结构
         let node = {
           type: 'MultiplicativeExpression',
@@ -100,9 +132,6 @@
       // 陷入死循环?
       return MultiplicativeExpression(source)
     }
-
-    MultiplicativeExpression(source)
-    console.log(source)
   }
 </script>
 </html>
