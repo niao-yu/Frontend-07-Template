@@ -59,11 +59,21 @@
 
     console.log('source: ', JSON.parse(JSON.stringify(source)))
     // 开始处理
-    AdditiveExpression(source)
+    Expression(source)
     console.log('结果: ', source)
 
     // 入口方法
     function Expression(source) {
+      // 是加减法结构结构
+      if (source[0].type === 'AdditiveExpression' && source[1] && source[1].type === 'EOF') {
+        source[0] = {
+          type: 'Expression',
+          children: [source.shift(), source.shift()]
+        }
+        return source
+      }
+      AdditiveExpression(source)
+      return Expression(source)
     }
 
     function AdditiveExpression(source) {
