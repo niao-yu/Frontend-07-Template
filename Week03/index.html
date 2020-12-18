@@ -48,9 +48,61 @@
       }
     }
 
-    for (const iterator of tokenize('1024 + 10 * 25')) {
-      console.log(iterator)
+    const source = []
+
+    for (const iterator of tokenize('1024 / 10 * 25')) {
+      // 过滤并收集
+      if (iterator.type !== 'Whitespace' && iterator.type !== 'LineTerminator') {
+        source.push(iterator)
+      }
     }
+
+    console.log(JSON.parse(JSON.stringify(source)))
+    // 开始处理
+
+    function Expression(tokens) {
+    }
+
+    function AdditiveExpression(source) {
+    }
+
+    // 乘法处理
+    function MultiplicativeExpression(source) {
+      // 是未经处理的数字
+      if (source[0].type === 'Number') {
+        source[0] = {
+          type: 'MultiplicativeExpression',
+          children: [source[0]]
+        }
+        return MultiplicativeExpression(source)
+      }
+
+      // 是一个局部乘除法的结构
+      if (source[0].type === 'MultiplicativeExpression' && source[1] && ['*', '/'].some(v => v === source[1].type)) {
+        console.log('进来了')
+        // 整个局部的乘除法结构
+        let node = {
+          type: 'MultiplicativeExpression',
+          operator: source[1].type,
+          children: []
+        }
+        node.children.push(source.shift())
+        node.children.push(source.shift())
+        node.children.push(source.shift())
+        source.unshift(node)
+        return MultiplicativeExpression(source)
+      }
+
+      if (source[0].type === 'MultiplicativeExpression') {
+        return source[0]
+      }
+
+      // 陷入死循环?
+      return MultiplicativeExpression(source)
+    }
+
+    MultiplicativeExpression(source)
+    console.log(source)
   }
 </script>
 </html>
