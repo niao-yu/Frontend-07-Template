@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>字典树</title>
+</head>
+<body>
+  
+</body>
+<script>
+  class Trie {
+    constructor() {
+      this.$ = Symbol('$')
+      this.root = Object.create(null)
+    }
+    insert(str) {
+      let node = this.root, $ = this.$
+      for (let chat of str) {
+        if (!node[chat]) {
+          node[chat] = {}
+        }
+        node = node[chat]
+      }
+      if (!node[$]) node[$] = 0
+      node[$]++
+    }
+    most() {
+      let max = 0, str = '', $ = this.$
+      getMost(this.root, '')
+      return { max, str }
+      function getMost(obj, lastStr) {
+        if (max < obj[$]) {
+            max = obj[$]
+            str = lastStr
+          }
+        for (let key in obj) {
+          getMost(obj[key], lastStr + key)
+        }
+      }
+    }
+  }
+
+  let trie = new Trie(), number = 100000
+  for (let i = 0; i < 100000; i++) {
+    let str = ''
+    for (let j = 0; j < 4; j++) {
+      str += String.fromCharCode(Math.floor(Math.random() * 26) + 'a'.charCodeAt(0))
+    }
+    trie.insert(str)
+  }
+  let mostObj = trie.most()
+  console.log('root: ', trie.root)
+  console.log('单词数量: ', number)
+  console.log('重复最多的单词: ', mostObj.str)
+  console.log('重复次数: ', mostObj.max)
+</script>
+</html>
