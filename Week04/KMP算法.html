@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KMP算法</title>
+</head>
+<body>
+  项目功能说明见README.md
+</body>
+<script>
+  // abcdabce
+  // 00000123
+
+  // abababc
+  // 0001234
+  
+  // 012 345 678 91011 121314
+  // abc abd abc abc abd
+  // 000 012 012 345 3456
+  //             012 345
+  //                 012
+  function kmp(source, pattern) {
+    let patternLength = pattern.length
+    let table = new Array(patternLength).fill(0)
+
+    // 生成table
+    {
+      let i = 1; j = 0
+      while(i < patternLength) {
+        if (pattern[i] === pattern[j]) {
+          ++j
+          ++i
+          table[i] = j
+        } else {
+          if (j > 0) {
+            j = table[j]
+          } else {
+            ++i
+          }
+        }
+      }
+    }
+    console.log('长字符串', source)
+    console.log('指定字符串', pattern)
+    console.log('table', table)
+
+    // 查找
+    {
+      let i = 0; j = 0, indexArr = []
+      while(i < source.length) {
+        if (j >= patternLength) {
+          indexArr.push(i - patternLength)
+          j = 0
+          continue
+        }
+        if (source[i] === pattern[j]) {
+          ++i
+          ++j
+        } else {
+          if (j > 0) {
+            j = table[j]
+          } else {
+            ++i
+          }
+        }
+      }
+      return indexArr
+    }
+  }
+  let result = kmp('abcaabcabcbdabcabcabdabcabeabcabc', 'abcababca')
+  console.log(`包含的位置共找到：${result.length}个，起始索引值分别为：${result}`)
+</script>
+</html>
