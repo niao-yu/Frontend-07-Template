@@ -2,11 +2,11 @@
 
 ## 字典树
 
-适用场景：
+### 适用场景：
 
 给定多个字符串，作为**字符串集合**，判断这个字符串中，有多少个字符串是**完全重复**的，拿到重复最多的那个字符串，并获得这个字符串重复的次数。
 
-字典树原理：
+### 字典树原理：
 
 字典树会声明一个**记录对象：root**，把传进来的字符串拆分成单个字母，一个个记录到root中：
 
@@ -70,11 +70,13 @@ root就是这些字符串的集合的字典树，字典树对象，就是维护r
 
 ## KMP算法
 
-适用场景：
+### 适用场景：
 
 给定一个长字符串，再给定短字符串，判断这个长字符串是否包含短字符串。
 
-KMP算法原理：
+当短字符串自己内部有小循环时，性能优化程度更大(比如`ababc`、`abcab`等等)。
+
+### KMP算法原理：
 
 暴力解的话，时间复杂度为O(mn)，m和n分别为长字符串和短字符串的字符数。
 
@@ -107,7 +109,7 @@ function judge(longStr, shortStr) {
 
 可以发现，两个字符串的前4个字符是全等的，但第5个字符不等，按照逻辑，内部for循环跳出，外部for循环的i加1，再开始依次对比，所以时间复杂度是O(mn)
 
-KMP算法的思路，分为两步：
+### KMP算法的思路，分为两步：
 
 1. 解析整理短字符串
 
@@ -175,6 +177,117 @@ KMP算法的思路，分为两步：
     当然，如果此时红字处的双方仍然不等，按照上面的逻辑，需要设置 `j = table[j]`，也就是 `j === table[2] === 0`，相当于把 `j` 归零了，也就是重头开始对比短字符串，逻辑也是正确的。
     
     
+## Wildcard字符串分析算法
 
+
+### 适用场景
+
+给定一个长字符串，再给定包含`*`和`?`的正则短字符串，判断这个长字符串是否包含正则短字符串。
+
+### 算法原理
+
+和KMP算法类似，但需要先把短字符串以 * 为分隔，分成几段。
+
+比如 短字符串：`ab*cd*cd`，那么只要长字符串的开头两位为 ab，最后两位为ef，中间那部分包含一个cd，就是符合的，比如一下这几个长字符串都是符合的：
+
+`abcdcd`、`ab0000cdcd`、`ab0000cd0000cd`
+
+但要注意，长字符串 `abcd` 是不符合的。
+
+最后就是 `?` 的处理，这个比较简单，因为它表示的是有一位任意的字母，哪怕是空格也符合，在对比时多一个判断即可。
+
+### 代码实现
+
+```js
+/**
+ * Wildcard字符串分析算法
+ * 传入长和短字符串, 返回长字符串是否符合短字符串定义的格式
+ * 短字符串中可能包含 * 和 ?
+ * @param {String} longStr 
+ * @param {String} shortStr 
+ */
+function Wildcard(longStr, shortStr) {
+  let startCount = 0 // * 的个数
+
+  for (let i = 0; i < shortStr.length; i++) {
+    if (shortStr[i] === '*') startCount++
+  }
+
+  // 没有 *, longStr, shortStr 需要是全等(注意里面有?匹配符)
+  if (!startCount) {
+    // 长度不同
+    if (shortStr.length !== longStr.length) {
+      return false
+    }
+    for (let i = 0; i < shortStr.length; i++) {
+      if (longStr[i] !== shortStr[i] && shortStr[i] !== '?') {
+        return false
+      }
+    }
+    return true
+  } else { // 包含 * , 开始遍历处理
+
+    let i = 0 // 取的 shortStr 的索引值
+    let lastIndex = i // 正则的 exec 的 lastIndex, 后面会用
+
+    // 判断第一个 * 之前的字符
+    {
+      for (; shortStr[i] !== '*'; i++) {
+        if (longStr[i] !== shortStr[i] && shortStr[i] !== '?') {
+          return false
+        }
+      }
+      lastIndex = i // 更新一下, 让后面校验 longStr 时, 从 i 这个索引开启(i之前的部分,都是第一个星号之前的,已经匹配完了)
+    }
+
+    { // 判断中间部分的匹配
+      for (let p = 0; p < startCount - 1; p++) {
+        ++i // 注意, 经历了上面和上一个循环的步骤 shortStr[i] === '*', 所以 i 需要先加1
+
+        let subshortStr = '' // shortStr 中, 被 * 分隔的字符串片段
+        // shortStr 的当前这一项不是 *, 拼接取来, 用来下面的匹配查找
+        while (shortStr[i] !== '*' && i < shortStr.length) {
+          subshortStr += shortStr[i]
+          i++
+        }
+
+        let Reg = new RegExp(subshortStr.replace(/\?/g, '[\\s\\S]'), 'g')
+
+        Reg.lastIndex = lastIndex
+        // 没有匹配上
+        if (!Reg.exec(longStr)) {
+          return false
+        }
+
+        // 这个片段匹配上了, 更新一下 lastIndex, 给下一个循环备用
+        lastIndex = Reg.lastIndex
+      }
+
+      { // 判断最后一个 * 后面的字符, 必须全字符匹配
+
+        ++i // 注意, 经历了上面和上一个循环的步骤 shortStr[i] === '*', 所以 i 需要先加1
+        // 最后一个 * 后面还有东西
+        if (i < shortStr.length) {
+
+          for (let j = 1; shortStr[shortStr.length - j] !== '*'; j++) {
+            let longStrIndex = longStr.length - j
+            if (longStrIndex < lastIndex) {
+              // 和上面已经比过的字符重叠了
+              return false
+            }
+            if (longStr[longStr.length - j] !== shortStr[shortStr.length - j] && shortStr[shortStr.length - j] !== '?') {
+              return false
+            }
+          }
+        }
+      }
+      // 判断完成, 能走到这儿, 匹配通过
+      return true
+    }
+  }
+}
+
+console.log(Wildcard('sfsff', 'sf?f'))
+```
 
 

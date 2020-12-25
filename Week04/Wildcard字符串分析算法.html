@@ -9,56 +9,63 @@
   项目功能说明见README.md
 </body>
 <script>
-  function find(source, pattern) {
-    let startCount = 0
+  /**
+   * Wildcard字符串分析算法
+   * 传入长和短字符串, 返回长字符串是否符合短字符串定义的格式
+   * 短字符串中可能包含 * 和 ?
+   * @param {String} longStr 
+   * @param {String} shortStr 
+   */
+  function Wildcard(longStr, shortStr) {
+    let startCount = 0 // * 的个数
 
-    for (let i = 0; i < pattern.length; i++) {
-      if (pattern[i] === '*') startCount++
+    for (let i = 0; i < shortStr.length; i++) {
+      if (shortStr[i] === '*') startCount++
     }
 
-    // 没有*, source, pattern 需要是全等(注意里面有?匹配符)
+    // 没有*, longStr, shortStr 需要是全等(注意里面有?匹配符)
     if (!startCount) {
       // 长度不同
-      if (pattern.length !== source.length) {
+      if (shortStr.length !== longStr.length) {
         return false
       }
-      for (let i = 0; i < pattern.length; i++) {
-        if (source[i] !== pattern[i] && pattern[i] !== '?') {
+      for (let i = 0; i < shortStr.length; i++) {
+        if (longStr[i] !== shortStr[i] && shortStr[i] !== '?') {
           return false
         }
       }
       return true
     } else { // 包含 * , 开始遍历处理
 
-      let i = 0 // 取的 pattern 的索引值
+      let i = 0 // 取的 shortStr 的索引值
       let lastIndex = i // 正则的 exec 的 lastIndex, 后面会用
 
       // 判断第一个 * 之前的字符
       {
-        for (; pattern[i] !== '*'; i++) {
-          if (source[i] !== pattern[i] && pattern[i] !== '?') {
+        for (; shortStr[i] !== '*'; i++) {
+          if (longStr[i] !== shortStr[i] && shortStr[i] !== '?') {
             return false
           }
         }
-        lastIndex = i // 更新一下, 让后面校验 source 时, 从 i 这个索引开启(i之前的部分,都是第一个星号之前的,已经匹配完了)
+        lastIndex = i // 更新一下, 让后面校验 longStr 时, 从 i 这个索引开启(i之前的部分,都是第一个星号之前的,已经匹配完了)
       }
 
       { // 判断中间部分的匹配
         for (let p = 0; p < startCount - 1; p++) {
-          ++i // 注意, 经历了上面和上一个循环的步骤 pattern[i] === '*', 所以 i 需要先加1
+          ++i // 注意, 经历了上面和上一个循环的步骤 shortStr[i] === '*', 所以 i 需要先加1
 
-          let subPattern = '' // pattern 中, 被 * 分隔的字符串片段
-          // pattern 的当前这一项不是 *, 拼接取来, 用来下面的匹配查找
-          while (pattern[i] !== '*' && i < pattern.length) {
-            subPattern += pattern[i]
+          let subshortStr = '' // shortStr 中, 被 * 分隔的字符串片段
+          // shortStr 的当前这一项不是 *, 拼接取来, 用来下面的匹配查找
+          while (shortStr[i] !== '*' && i < shortStr.length) {
+            subshortStr += shortStr[i]
             i++
           }
 
-          let Reg = new RegExp(subPattern.replace(/\?/g, '[\\s\\S]'), 'g')
+          let Reg = new RegExp(subshortStr.replace(/\?/g, '[\\s\\S]'), 'g')
 
           Reg.lastIndex = lastIndex
           // 没有匹配上
-          if (!Reg.exec(source)) {
+          if (!Reg.exec(longStr)) {
             return false
           }
 
@@ -68,17 +75,17 @@
 
         { // 判断最后一个 * 后面的字符, 必须全字符匹配
 
-          ++i // 注意, 经历了上面和上一个循环的步骤 pattern[i] === '*', 所以 i 需要先加1
+          ++i // 注意, 经历了上面和上一个循环的步骤 shortStr[i] === '*', 所以 i 需要先加1
           // 最后一个 * 后面还有东西
-          if (i < pattern.length) {
+          if (i < shortStr.length) {
 
-            for (let j = 1; pattern[pattern.length - j] !== '*'; j++) {
-              let sourceIndex = source.length - j
-              if (sourceIndex < lastIndex) {
+            for (let j = 1; shortStr[shortStr.length - j] !== '*'; j++) {
+              let longStrIndex = longStr.length - j
+              if (longStrIndex < lastIndex) {
                 // 和上面已经比过的字符重叠了
                 return false
               }
-              if (source[source.length - j] !== pattern[pattern.length - j] && pattern[pattern.length - j] !== '?') {
+              if (longStr[longStr.length - j] !== shortStr[shortStr.length - j] && shortStr[shortStr.length - j] !== '?') {
                 return false
               }
             }
@@ -90,6 +97,6 @@
     }
   }
 
-  console.log(find('sfsff', 'sf?f'))
+  console.log(Wildcard('sfsff', 'sf?f'))
 </script>
 </html>
