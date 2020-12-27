@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  
+</body>
+<script>
+
+  let callbacks = new Map()
+  let usedReactivties = []
+
+  let temp = reactive({
+    a: 10,
+    b: 20
+  })
+
+  effect(() => {
+    console.log('使用了 temp.a', temp.a)
+  })
+
+  // 添加监听的工具函数
+  function effect(callback) {
+    usedReactivties = [] // 先清空
+    callback() // 去调用一下
+
+    for (let usedReactive of usedReactivties) {
+      if (!callbacks.has(usedReactive[0])) {
+        callbacks.set(usedReactive[0], new Map())
+      }
+      if (!callbacks.get(usedReactive[0]).has(usedReactive[1])) {
+        callbacks.get(usedReactive[0]).set(usedReactive[1], [])
+      }
+      callbacks.get(usedReactive[0]).get(usedReactive[1]).push(callback)
+    }
+  }
+
+  // 仿Vue的reactive函数
+  function reactive(obj) {
+    return new Proxy(obj, {
+      set(o, key, value) {
+        o[key] = value
+        if (callbacks.get(o) && callbacks.get(o).get(key)) {
+          for (let callback of callbacks.get(o).get(key)) {
+            callback()
+          }
+        }
+        return o[key]
+      },
+      get(o, key) {
+        usedReactivties.push([o, key])
+        return o[key]
+      },
+    })
+  }
+</script>
+</html>
