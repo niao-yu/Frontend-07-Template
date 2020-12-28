@@ -12,14 +12,15 @@
 
   let callbacks = new Map()
   let usedReactivties = []
+  let reactives = new Map()
 
   let temp = reactive({
     a: 10,
-    b: 20
+    b: {c: 100},
   })
 
   effect(() => {
-    console.log('使用了 temp.a', temp.a)
+    console.log('设置了 temp.b.c', temp.b.c)
   })
 
   // 添加监听的工具函数
@@ -40,7 +41,10 @@
 
   // 仿Vue的reactive函数
   function reactive(obj) {
-    return new Proxy(obj, {
+    if (reactives.get(obj)) {
+      return reactives.get(obj)
+    }
+    let proxy = new Proxy(obj, {
       set(o, key, value) {
         o[key] = value
         if (callbacks.get(o) && callbacks.get(o).get(key)) {
@@ -52,9 +56,14 @@
       },
       get(o, key) {
         usedReactivties.push([o, key])
+        if (typeof(o[key]) === 'object') {
+          return reactive(o[key])
+        }
         return o[key]
       },
     })
+    reactives.set(obj, proxy)
+    return proxy
   }
 </script>
 </html>
