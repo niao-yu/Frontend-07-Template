@@ -6,7 +6,17 @@
   <title>Document</title>
 </head>
 <body>
-  
+  <input type="range" id="r" min="0" max="255">
+  <br>
+  <br>
+  <input type="range" id="g" min="0" max="255">
+  <br>
+  <br>
+  <input type="range" id="b" min="0" max="255">
+  <br>
+  <br>
+
+  <div id="box" style="width: 100px; height: 100px"></div>
 </body>
 <script>
 
@@ -14,13 +24,27 @@
   let usedReactivties = []
   let reactives = new Map()
 
-  let temp = reactive({
-    a: 10,
-    b: {c: 100},
+  let color = reactive({
+    r: 0,
+    g: 0,
+    b: 0,
   })
 
   effect(() => {
-    console.log('设置了 temp.b.c', temp.b.c)
+    document.querySelector("#r").value = color.r
+    document.querySelector("#g").value = color.g
+    document.querySelector("#b").value = color.b
+
+    document.querySelector("#box").style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`
+  })
+  document.querySelector("#r").addEventListener('input', event => {
+    color.r = event.target.value
+  })
+  document.querySelector("#g").addEventListener('input', event => {
+    color.g = event.target.value
+  })
+  document.querySelector("#b").addEventListener('input', event => {
+    color.b = event.target.value
   })
 
   // 添加监听的工具函数
