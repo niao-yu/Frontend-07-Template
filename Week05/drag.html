@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拖拽</title>
+</head>
+<body>
+  <div id="box">
+    这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字 这里是字
+    <div id="drag" style="width: 30px;height: 30px;display: inline-block;background-color: pink;"></div>
+  </div>
+</body>
+<script>
+  let textDom = document.querySelector('#box').childNodes[0]
+  let ranges = []
+  for (let i = 0; i < textDom.length; i++) {
+    let range = document.createRange()
+    range.setStart(textDom, i)
+    range.setEnd(textDom, i)
+    ranges.push(range)
+  }
+
+  let drag = document.querySelector('#drag')
+  let baseX = 0, baseY = 0
+
+  drag.addEventListener('mousedown', (event) => {
+    let startX = event.clientX, startY = event.clientY
+    document.addEventListener('mousemove', mousemove)
+    document.addEventListener('mouseup', mouseup)
+    document.addEventListener('selectstart', selectstart)
+    // 移动时
+    function mousemove(event) {
+      let nowX = baseX + event.clientX - startX, nowY = baseY + event.clientY - startY
+      drag.style.transform = `translate(${nowX}px, ${nowY}px)`
+    }
+    // 鼠标松开时
+    function mouseup(event) {
+      document.removeEventListener('mousemove', mousemove)
+      document.removeEventListener('mouseup', mouseup)
+      document.removeEventListener('selectstart', selectstart)
+      baseX = baseX + event.clientX - startX
+      baseY = baseY + event.clientY - startY
+    }
+  })
+  // 选中时
+  function selectstart(event) {
+    return event.preventDefault()
+  }
+</script>
+</html>
