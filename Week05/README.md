@@ -277,3 +277,9 @@ const { proxy, revoke } = Proxy.revocable(target, handler);
 - revoke：撤销的当前代理对象的方法，可以直接执行
 
 一旦某个代理对象被撤销，它将变得几乎完全不可调用，在它身上执行任何的可代理操作都会抛出 TypeError 异常（注意，可代理操作一共有 14 种，执行这 14 种操作以外的操作不会抛出异常）。一旦被撤销，这个代理对象便不可能被直接恢复到原来的状态，同时和它关联的目标对象以及处理器对象都有可能被垃圾回收掉。再次调用撤销方法 revoke() 则不会有任何效果，但也不会报错。
+
+# Dom 片段 Range
+
+官方文档：[https://developer.mozilla.org/zh-CN/docs/Web/API/Range](https://developer.mozilla.org/zh-CN/docs/Web/API/Range)
+
+> 剩余部分由于假期，没来得及研究整理，下周补上。
