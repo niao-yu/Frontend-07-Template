@@ -29,8 +29,53 @@
 - 声明式语言：JSON、HTML XAML、SQL、CSS、Perl等等
 - 命令式语言：C、C++、Java、JavaScript、C#、Python等等
 
+##### 命令式语言
 
-## 产生式（BNF）
+###### 层级
+
+1. 原子级 Atom
+
+基本的单位
+
+- 变量名
+- 变量
+- 1234等直接量
+- ...
+
+2. 表达式 Expression
+
+原子级的元素使用符号进行连接
+
+- 四则运算
+- 与或非、逻辑运算等等
+- ...
+
+3. 语句 Statement
+
+表达式加上特定标识符、关键字、符号，形成的结构
+
+- if else 条件语句
+- while、for 等循环语句
+- ...
+
+4. 结构化 Structure
+
+可复用的结构
+
+- Function
+- Class
+- ...
+
+5. 组织程序 Program
+
+可能语言自带，可能需要其他辅助性的设施来提供能力，比如 node 的 npm
+
+- modules
+- package
+- library
+- ...
+
+## 产生式（巴科斯诺尔范式 BNF）
 
 - 产生式：在计算机中指 Tiger 编译器将源程序经过词法分析（Lexical Analysis）和语法分析（Syntax Analysis）后得到的一系列符合文法规则（Backus-Naur Form，BNF）的语句。
 - 巴科斯诺尔范式：即巴科斯范式（英语：Backus Normal Form，缩写为 BNF）是一种用于表示上下文无关文法的语言，上下文无关文法描述了一类形式语言。它是由约翰·巴科斯（John Backus）和彼得·诺尔（Peter Naur）首先引入的用来描述计算机语言语法的符号集。
@@ -94,4 +139,14 @@
 协变与逆变
 
 [协变与逆变](https://jkchao.github.io/typescript-book-chinese/tips/covarianceAndContravariance.html)
+
+## Number
+
+js 的 Number，是使用 64 位的二进制，表示的双精度浮点类型(IEEE 754 Double Float)。
+
+- Sign：占 1 位，表示符号的正负，0 为正数，1 为负数
+- Exponent：占 11位，表示指数，也就是 2 的多少次方，其中左数第一位表示正负，后十位才是指数的值，第一位为 1 时，表示正的指数(比如 10000000011 表示 2 的 3 次方)，第一位为 0 时，表示正的指数(比如 00000000011 表示 2 的负 3 次方)
+- Fraction：占 52 位，有效位数，决定了精度
+
+最终的值如果换算为十进制，那就是：
 
