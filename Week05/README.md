@@ -278,8 +278,250 @@ const { proxy, revoke } = Proxy.revocable(target, handler);
 
 一旦某个代理对象被撤销，它将变得几乎完全不可调用，在它身上执行任何的可代理操作都会抛出 TypeError 异常（注意，可代理操作一共有 14 种，执行这 14 种操作以外的操作不会抛出异常）。一旦被撤销，这个代理对象便不可能被直接恢复到原来的状态，同时和它关联的目标对象以及处理器对象都有可能被垃圾回收掉。再次调用撤销方法 revoke() 则不会有任何效果，但也不会报错。
 
-# Dom 片段 Range
+# 文档片段范围 Range
 
-官方文档：[https://developer.mozilla.org/zh-CN/docs/Web/API/Range](https://developer.mozilla.org/zh-CN/docs/Web/API/Range)
+@[toc]
 
-> 剩余部分由于假期，没来得及研究整理，下周补上。
+Range 接口表示一个包含节点与文本节点的一部分的文档片段，这个文本片段可以是空的、纯文字、成对的 dom 节点。
+
+Range 是一个范围，基于 Dom 节点的范围，如果修改了 Range 范围中的 Dom，Range 的范围也会自动调整，如果删除了 Range 内的所有 Dom，相当于 Range 的开始和结束位置相等了。
+
+Range 和 [Selection](https://developer.mozilla.org/zh-CN/docs/Web/API/Selection) 配合使用效果更佳。
+
+## 创建方法
+
+- Document.createRange()：返回一个以全局（global） Document 作为起点与终点的 Range 对象
+- new Range()：返回一个以全局（global） Document 作为起点与终点的 Range 对象
+
+## 生成的 Range 对象的属性
+一个 Range 对象有一下几个**只读**属性：
+- collapsed：布尔值，此 Range 对象的起始位置和终止位置是否相同。
+- commonAncestorContainer：返回完整包含 startContainer 和 endContainer 的、最深一级的节点。
+- endContainer：返回包含 Range 终点的节点。
+- endOffset：返回一个表示 Range 终点在 endContainer 中的位置的数字。
+- startContainer：返回包含 Range 开始的节点。
+- startOffset：返回一个表示 Range 起点在 startContainer 中的位置的数字。
+
+## 生成的 Range 对象的方法
+
+### 定位功能的方法
+
+用于定位和调整 range 范围
+
+#### 设置起点和偏移 Range.setStart()
+
+设置 Range 的起点。
+
+语法：range.setStart(startNode, startOffset)
+- startNode：一个 dom 节点，表示 Range 的开始位置所根据的节点。
+- startOffset：偏移量，必须为不小于 0 的整数，表示从 startNode.childNodes 内部的第几个节点的开始位置算起。
+
+**注意**：如果 Range 开头和结尾并不是成对的 dom 节点，则会自动删掉多余的部分。
+
+```html
+<!DOCTYPE html>
+<body>
+  <div class="box">
+    asdf1
+    <div class="box_1">小盒子1</div>
+    <div class="box_2">小盒子2</div>
+    <div class="box_3">小盒子3</div>
+    <div class="box_4">小盒子4</div>
+  </div>
+</body>
+<script>
+  let domBox = document.querySelector('.box')
+  // 先打印一下 dom 看一下
+  for (let i = 0; i < domBox.childNodes.length; i++) {
+    let child = domBox.childNodes[i]
+    // 文本节点, 打印文本内容
+    if (child.nodeType === 3) console.log(i, child.data)
+    // 元素节点，打印 dom 的 string
+    else console.log(i, child.innerHTML)
+  }
+
+  console.log('------ 隔离线 ------')
+
+  // 创建 Range
+  let docuRange = document.createRange()
+  docuRange.setStart(domBox, 0)
+  docuRange.setEnd(domBox, 4)
+
+  // 打印 Range 的内容，主要看一下 Range 包含的范围
+  console.log(docuRange.cloneContents()) // 获取 range 的内容进行打印
+</script>
+```
+
+打印结果如下，可见 setStart 是设置 startNode 这个节点的内部某一处作为起始的。
+
+startOffset 是 childNodes 的索引值，指的是第几个子节点的开头位置。
+
+![Snipaste_2021-01-08_18-56-02.png](https://docassets.junlli.com/img/23b7ed7f0238246221a87cac95e5b054.png)
+
+#### 设置结尾和偏移 Range.setEnd()
+
+设置 Range 的终点，类似设置起始位置的 Range.setStart
+
+语法：range.setStart(startNode, startOffset)
+- endNode：一个 dom 节点，表示 Range 的结束位置所根据的节点。
+- endOffset：偏移量，必须为不小于 0 的整数，表示从 endNode.childNodes 内部的第几个节点的开始位置算起。
+
+
+#### 基于节点之前设置起点 Range.setStartBefore()
+
+以其它节点为基准，设置 Range 的起点。
+
+语法：range.setStartBefore(referenceNode)
+- referenceNode：一个 dom 节点，以这个 dom 的前面作为 range 的起始位置，包含了这个节点
+
+#### 基于节点之后设置起点 Range.setStartAfter()
+
+以其它节点为基准，设置 Range 的起点。
+
+语法：range.setStartAfter(referenceNode);
+- referenceNode：一个 dom 节点，以这个 dom 的结尾处，作为 range 的起始位置
+
+#### 基于节点之前设置结尾 Range.setEndBefore()
+
+以其它节点为基准，设置 Range 的终点。
+
+语法：range.setEndBefore(referenceNode)
+- referenceNode：一个 dom 节点，以这个 dom 的前面作为 range 的结束位置
+
+#### 基于节点之后设置结尾 Range.setEndAfter()
+
+以其它节点为基准，设置 Range 的终点。
+
+语法：range.setEndAfter(referenceNode)
+- referenceNode：一个 dom 节点，以这个 dom 的结尾处，作为 range 的结束位置，包含了这个节点
+
+#### 选中节点作为范围 Range.selectNode()
+
+使 Range 直接选中某个节点作为 Range 的范围。
+
+语法：range.selectNode(referenceNode)
+- referenceNode：一个 dom 节点，以这个 dom 作为 Range 的范围。
+
+#### 选中节点的内容作为范围 Range.selectNodeContents()
+
+使 Range 直接选中某个节点的内容，作为 Range 的范围。
+
+语法：range.selectNode(referenceNode)
+- referenceNode：一个 dom 节点，以这个 dom 的内容作为 Range 的范围，不包含这个节点。
+
+#### 压缩折叠 Range.collapse()
+
+将 Range 折叠至其端点（boundary points，起止点，指起点或终点，下同）之一。
+
+通俗来说，就是清空 Range，但 Range 表示一个范围，即使是空的，也只是表示他的开始和结束是同一个位置。
+
+而开始和结束是同一位置，这个位置就是由参数 toStart 决定的。
+
+折叠后的 Range 的 collapsed 属性为 true，表示起始位置和终止位置是相同的。
+
+语法：range.collapse(toStart)
+- toStart：可选，boolean 值，默认 false，表示是否折叠到 start 处(即使把结束位置移动到开始处)，false 折叠到 end 节点。
+
+### 编辑功能的方法
+
+可以从 Range 中获得节点，改变 Range 的内容。
+
+#### 复制得到内部文档片段 Range.cloneContents()
+
+返回一个包含 Range 中所有节点的[文档片段](https://developer.mozilla.org/zh-CN/docs/Web/API/DocumentFragment)。
+
+这个文档片段是对文档 Dom 的拷贝，获取后，再修改 Range 范围和文档 Dom，不会影响该文档片段。
+
+使用DOM事件添加的事件侦听器在提取期间不会保留。
+
+HTML属性事件将按Node.cloneNode()方法的原样保留或复制。
+
+HTML id属性也会被克隆，如果提取了部分选定的节点并将其附加到文档中，则可能导致无效的文档。
+
+```js
+let range = document.createRange();
+range.selectNode(document.getElementsByTagName("div"));
+let documentFragment = range.cloneContents();
+document.body.appendChild(documentFragment);
+```
+
+#### 删除内部文档节点 Range.deleteContents()
+
+从文档中移除 Range 包含的内容，删除 Range 范围中的所有 Dom，Range 的范围也自动调整了。
+
+语法：range.deleteContents()
+
+#### 剪切得到文档片段 Range.extractContents()
+
+把 Range 的内容从文档树移动到一个文档片段中。
+
+功能类似于前面的 Range.cloneContents()，但 cloneContents 是返回拷贝的文档片段，而这个是移动。
+
+且因为是移动，页面文档中的 Dom 也就因为移走而消失了，Range 的范围也会自动更新，效果类似于 Range.deleteContents()。
+
+所以整体来看：Range.extractContents() === Range.cloneContents() + Range.deleteContents()
+
+语法：documentFragment = range.extractContents();
+
+#### 在起点处插入一个文档节点 Range.insertNode()
+
+在 Range 的起点处插入一个 Dom 节点。
+
+新节点是插入在 Range 开始位置之后，也就是范围内所有节点之前。
+
+如果新节点是一个文档片段，则插入文档片段的子节点(就是文档片段内部的 Dom 节点)。
+
+语法：range.insertNode(newNode);
+- newNode：Dom 节点
+
+#### 插入到新节点并选中新节点 Range.surroundContents()
+
+将 Range 的内容移动到一个新的节点中，并将新节点放到这个范围的起始处。
+
+这个方法与 newNode.appendChild(range.extractContents()) + range.insertNode(newNode) 等价。
+
+应用以后，newNode 包含在 range 的边界点中。
+
+然而，如果 Range 断开了一个非 Text 节点，只包含了节点的其中一个边界点，就会抛出异常。
+
+也就是说，不像上述的等价方法，如果节点仅有一部分被选中，则不会被克隆，整个操作会失败。
+
+语法：range.surroundContents(newParent);
+newParent：一个包含内容的 Dom 节点。
+
+### 其他方法
+
+#### 比较两个 range 的端点 Range.compareBoundaryPoints()
+
+比较两个 Range 的端点。
+
+语法：compare = range.compareBoundaryPoints(how, sourceRange);
+- compare：一个数字，-1，0 或 1，指示的相应的边界点是否Range是分别之前，等于，或之后的相应的边界点sourceRange。
+- how：描述比较方法的常量，可选值：
+  - Range.END_TO_END：将 sourceRange 的结束边界点与的结束边界点进行比较 Range。
+  - Range.END_TO_START：将 sourceRange 的结束边界点与的开始边界点进行比较 Range。
+  - Range.START_TO_END：比较 sourceRange 的开始边界点和的结束边界点 Range。
+  - Range.START_TO_START：将 sourceRange 的起始边界点与的起始边界点进行比较 Range。
+  - 如果参数值无效，则抛出 DOMException 带有 NotSupportedError 代码的。
+- sourceRange：ARange比较边界点和范围。
+
+
+#### 克隆得到一个新的 Range.cloneRange()
+
+克隆一个 Range， 克隆的对象是复制过来的，而非引用，所以这两个对象双方各自做出的改变，都不会影响另一方。
+
+语法：clone = range.cloneRange()
+- clone：克隆的 Range 对象。
+
+#### 释放 Range.detach()
+
+不执行任何操作，只将 Range 从使用状态中释放，改善性能，它用于禁用 Range对象并允许浏览器释放关联的资源，该方法已保留用于兼容性。
+
+语法：range.detach();
+
+
+#### 得到范围中的文字内容 Range.toString()
+
+把 Range 中的 Dom 节点中的文字内容返回(包括换行和空格等)。
+
+语法：text = range.toString();
