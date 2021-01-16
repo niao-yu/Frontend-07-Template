@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #main {
+      width: 100vw;
+      height: 90vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="main"></div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.0.0/echarts.min.js" integrity="sha512-ZRdjJAYP8Kij8Lkln9uiGj0jIrMDLAALm1ZB2b3VfV9XJ0nR4zbJmHKB42/A4tgMlZS4DTPnSAmcYRoS0dginA==" crossorigin="anonymous"></script>
+<script>
+
+  const echarts = window.echarts
+
+  let myChart = echarts.init(document.getElementById('main'));
+
+  let data = [
+    {
+      // "value": 30,
+      "name": "内置对象",
+      "path": "Realm/内置对象",
+      "children": [
+        {
+          "value": 10,
+          "name": "Global",
+          "path": "Realm/内置对象/Global"
+        },
+        {
+          "value": 10,
+          "name": "Math",
+          "path": "Realm/内置对象/Math"
+        },
+      ]
+    },
+    {
+      // "value": 92,
+      "name": "本地对象",
+      "path": "Realm/本地对象",
+      "children": [
+        {
+          "value": 10,
+          "name": "Object",
+          "path": "Realm/本地对象/Object"
+        },
+        {
+          "value": 10,
+          "name": "Array",
+          "path": "Realm/本地对象/Array"
+        },
+        {
+          "value": 10,
+          "name": "Date",
+          "path": "Realm/Date"
+        },
+        {
+          "value": 10,
+          "name": "RegExp",
+          "path": "Realm/本地对象/RegExp"
+        },
+        {
+          "value": 10,
+          "name": "Function",
+          "path": "Realm/本地对象/Function"
+        },
+        {
+          "value": 10,
+          "name": "Boolean",
+          "path": "Realm/本地对象/Boolean"
+        },
+        {
+          "value": 10,
+          "name": "Number",
+          "path": "Realm/本地对象/Number"
+        },
+        {
+          "value": 10,
+          "name": "String",
+          "path": "Realm/本地对象/String"
+        },
+      ]
+    },
+    {
+      // "value": 12,
+      "name": "宿主对象",
+      "path": "Realm/宿主对象",
+      "children": [
+        {
+          "value": 10,
+          "name": "Window",
+          "path": "Realm/宿主对象/Window"
+        },
+        {
+          "value": 10,
+          "name": "Document",
+          "path": "Realm/宿主对象/Document"
+        },
+        {
+          "value": 10,
+          "name": "其他",
+          "path": "Realm/宿主对象/其他"
+        },
+      ]
+    }
+  ]
+
+  var formatUtil = echarts.format;
+
+  function getLevelOption() {
+    return [{
+      itemStyle: {
+        borderColor: '#777',
+        borderWidth: 0,
+        gapWidth: 1
+      },
+      upperLabel: {
+        show: false
+      }
+    },
+    {
+      itemStyle: {
+        borderColor: '#555',
+        borderWidth: 10,
+        gapWidth: 1
+      },
+      emphasis: {
+        itemStyle: {
+          borderColor: '#ddd'
+        }
+      }
+    },
+    {
+      colorSaturation: [0.35, 0.5],
+      itemStyle: {
+        borderWidth: 10,
+        gapWidth: 1,
+        borderColorSaturation: 0.6
+      }
+    }];
+  }
+
+  myChart.setOption(option = {
+
+    title: {
+      text: 'Realm',
+      left: 'center'
+    },
+
+    tooltip: {
+      formatter: function(info) {
+        var value = info.value;
+        var treePathInfo = info.treePathInfo;
+        var treePath = [];
+
+        for (var i = 1; i < treePathInfo.length; i++) {
+          treePath.push(treePathInfo[i].name);
+        }
+
+        return ['<div class="tooltip-title">' + formatUtil.encodeHTML(treePath.join('/')) + '</div>', 'Disk Usage: ' + formatUtil.addCommas(value) + ' KB', ].join('');
+      }
+    },
+
+    series: [{
+      name: 'Realm',
+      type: 'treemap',
+      visibleMin: 300,
+      label: {
+        show: true,
+        formatter: '{b}'
+      },
+      upperLabel: {
+        show: true,
+        height: 30
+      },
+      itemStyle: {
+        borderColor: '#fff'
+      },
+      levels: getLevelOption(),
+      data: data
+    }]
+  });
+</script>
+
+</html>
