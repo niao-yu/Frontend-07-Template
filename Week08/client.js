@@ -24,14 +24,12 @@ class Request {
     let a = `${this.method} ${this.path} HTTP/1.1\n`
     let b = Object.keys(this.headers).map(key => `${key}: ${this.headers[key]}`).join('\r\n')
     let c = `\n\n${this.bodyText}`
-    // console.log(1, 'toString 执行了', a, b, c)
     return a + b + c
   }
   
   send(connection) {
     return new Promise((resole, reject) => {
       const parse = new ResponseParser;
-      console.log(12, '来了')
       if (connection) {
         connection.write(this.toString())
       } else {
@@ -39,15 +37,11 @@ class Request {
           host: this.host,
           port: this.port,
         }, () => {
-          console.log(this.toString())
           connection.write(this.toString())
         })
       }
 
       connection.on('data', data => {
-        console.log(0.1)
-        console.log(data.toString())
-        console.log(1.1)
         parse.receive(data.toString())
         if (parse.isFinished) {
           resole(parse.response)
@@ -82,12 +76,26 @@ class ResponseParser {
     this.bodyParse = null
   }
 
+  get isFinished() {
+    return this.bodyParse && this.bodyParse.isFinished
+  }
+
+  get response() {
+    this.statusLine.match(/HTTP\/1.1 ([0-9]+) ([\s\S]+)/)
+    return {
+      statusCode: RegExp.$1,
+      statusText: RegExp.$2,
+      headers: this.headers,
+      body: this.bodyParse.content.join(''),
+    }
+  }
+
   receive(string) {
     for (let i = 0; i < string.length; i++) {
       this.receiveChar(string.charAt(i));
     }
-    console.log(this.statusLine)
-    console.log(this.headers)
+    // console.log(this.statusLine)
+    // console.log(this.headers)
   }
   receiveChar(char) {
     if (this.current === this.WAITING_STATUS_LINE) {
@@ -105,6 +113,9 @@ class ResponseParser {
         this.current = this.WAITING_HEADER_SPACE
       } else if (char === '\r') {
         this.current = this.WAITING_HEADER_BLOCK_END
+        if (this.headers['Transfer-Encoding'] === 'chunked') {
+          this.bodyParse = new TrunkedBodyParser()
+        }
       } else {
         this.headerName += char
       }
@@ -130,7 +141,54 @@ class ResponseParser {
         this.current = this.WAITING_BODY
       }
     } else if (this.current === this.WAITING_BODY) {
-      console.log(char)
+      this.bodyParse.receiveChar(char)
+    }
+  }
+}
+
+class TrunkedBodyParser {
+  constructor() {
+    this.WAITING_LENGTH = 0
+    this.WAITING_LENGTH_LINE_END = 1
+    this.READING_TRUNK = 2
+    this.WAITING_NEW_LINE = 3
+    this.WAITING_NEW_LINE_END = 4
+
+    this.length = 0
+    this.content = []
+    this.isFinished = false
+    this.current = this.WAITING_LENGTH
+  }
+  receiveChar(char) {
+    if (this.current === this.WAITING_LENGTH) {
+      // console.log(123, char, char === '\r')
+      if (char === '\r') {
+        if (this.length === 0) {
+          this.isFinished = true
+        }
+        this.current = this.WAITING_LENGTH_LINE_END
+      } else {
+        this.length *= 16
+        this.length += parseInt(char, 16)
+      }
+    } else if (this.current === this.WAITING_LENGTH_LINE_END) {
+      if (char === '\n') {
+        this.current = this.READING_TRUNK
+      }
+    } else if (this.current === this.READING_TRUNK) {
+      this.content.push(char)
+      this.length--
+      if (this.length === 0) {
+        this.current = this.WAITING_NEW_LINE
+      }
+    } else if (this.current === this.WAITING_NEW_LINE) {
+      if (char === '\r') {
+        this.current = this.WAITING_NEW_LINE_END
+      }
+    } else if (this.current === this.WAITING_NEW_LINE_END) {
+      if (char === '\n') {
+        this.current = this.WAITING_LENGTH
+      }
     }
   }
 }
