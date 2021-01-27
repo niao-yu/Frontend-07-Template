@@ -14,11 +14,11 @@ let server = function (request, response) {
     console.log(body)
     response.writeHead(200, {'Content-Type': 'text/html'}) // 把数据返回给前台
     response.end(`
-<!DOCTYPE html>
-  <html lang="zh">
+<html>
+  <html lang=zh>
   <head>
     <title>Document</title>
-    <meta charset="UTF-8">
+    <meta charset=UTF-8>
     <style>
       body {
         padding: 0;
@@ -30,8 +30,9 @@ let server = function (request, response) {
   </head>
   <body>
     <div>
-      <p>p</p>
+      <p name=p>p</p>
       <span>span</span>
+      <img src=fff alt=sdf />
     </div>
   </body>
 </html>

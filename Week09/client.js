@@ -1,5 +1,5 @@
 const net = require('net');
-// const parse = require('./parse');
+const parse = require('./parse');
 
 class Request {
   constructor(options) {
@@ -218,8 +218,9 @@ void async function() {
 
   try {
     let response = await request.send()
-    console.log('response')
-    console.log(response)
+    // console.log('response')
+    // console.log(response)
+    parse.parseHtml(response.body)
   } catch(error) {
     console.error('error')
     console.error(error)
