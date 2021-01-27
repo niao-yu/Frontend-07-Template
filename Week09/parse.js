@@ -2,9 +2,45 @@ const EOF = Symbol('EOF')
 
 let currentToken = null;
 let currentAttribute = null; // 记录属性的
+const stack = [{type: 'document', children: []}]
 
 function emit(token) {
-  console.log(token)
+  if (token.type === 'text') return
+
+  let top = stack[stack.length - 1]
+
+  if (token.type === 'startTag') {
+    let element = {
+      type: 'element',
+      children: [],
+      attributes: [],
+    }
+
+    element.tagName = token.tagName
+
+    for (let key in token) {
+      if (key !== 'tagName' && key !== 'type') {
+        element.attributes.push({
+          name: key,
+          value: token[key]
+        })
+      }
+    }
+
+    top.children.push(element)
+    element.parent = top
+
+    if (!token.isSelfClosing) {
+      stack.push(element)
+    }
+
+  } else if (token.type === 'endTag') {
+    if (top.tagName === token.tagName) {
+      stack.pop()
+    } else {
+      throw new Error(`标签头尾不对应：${top.tagName}, ${token.tagName}`)
+    }
+  }
 }
 
 function data(char) {
@@ -209,4 +245,5 @@ module.exports.parseHtml = function parseHTML(html) {
     state = state(char)
   }
   state = state(EOF)
+  console.log(stack[0])
 }
