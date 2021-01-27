@@ -3,10 +3,9 @@ const EOF = Symbol('EOF')
 let currentToken = null;
 let currentAttribute = null; // 记录属性的
 const stack = [{type: 'document', children: []}]
+let currentTextNode = null
 
 function emit(token) {
-  if (token.type === 'text') return
-
   let top = stack[stack.length - 1]
 
   if (token.type === 'startTag') {
@@ -34,12 +33,24 @@ function emit(token) {
       stack.push(element)
     }
 
+    currentTextNode = null
   } else if (token.type === 'endTag') {
     if (top.tagName === token.tagName) {
       stack.pop()
     } else {
       throw new Error(`标签头尾不对应：${top.tagName}, ${token.tagName}`)
     }
+    currentTextNode = null
+  } else if (token.type === 'text') {
+    if (currentTextNode === null) {
+      currentTextNode = {
+        type: 'text',
+        content: '',
+      }
+      top.children.push(currentTextNode)
+    }
+    console.log(token.content)
+    currentTextNode.content += token.content
   }
 }
 
