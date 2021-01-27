@@ -1,4 +1,5 @@
 const net = require('net');
+// const parse = require('./parse');
 
 class Request {
   constructor(options) {
@@ -91,11 +92,10 @@ class ResponseParser {
   }
 
   receive(string) {
+    console.log(string)
     for (let i = 0; i < string.length; i++) {
       this.receiveChar(string.charAt(i));
     }
-    // console.log(this.statusLine)
-    // console.log(this.headers)
   }
   receiveChar(char) {
     if (this.current === this.WAITING_STATUS_LINE) {
@@ -148,8 +148,8 @@ class ResponseParser {
 
 class TrunkedBodyParser {
   constructor() {
-    this.WAITING_LENGTH = 0
-    this.WAITING_LENGTH_LINE_END = 1
+    this.WAITING_LENGTH = 0 // 一行开始了
+    this.WAITING_LENGTH_LINE_END = 1 // 长度行结束了
     this.READING_TRUNK = 2
     this.WAITING_NEW_LINE = 3
     this.WAITING_NEW_LINE_END = 4
@@ -158,11 +158,15 @@ class TrunkedBodyParser {
     this.content = []
     this.isFinished = false
     this.current = this.WAITING_LENGTH
+
+    this.a = 0
   }
   receiveChar(char) {
-    if (this.current === this.WAITING_LENGTH) {
-      // console.log(123, char, char === '\r')
+    if (this.isFinished) return
+    if (this.current === this.WAITING_LENGTH) { // 整个刚开始了
+      // console.log('整个刚开始了', char === ' ' ? '空格' : char === '\r' ? 'r' : char === '\n' ? 'n' : char, '*')
       if (char === '\r') {
+        // console.log(this.length)
         if (this.length === 0) {
           this.isFinished = true
         }
@@ -170,22 +174,25 @@ class TrunkedBodyParser {
       } else {
         this.length *= 16
         this.length += parseInt(char, 16)
+        // console.log(this.length, char)
       }
-    } else if (this.current === this.WAITING_LENGTH_LINE_END) {
+    } else if (this.current === this.WAITING_LENGTH_LINE_END) { // 长度行结束了
       if (char === '\n') {
         this.current = this.READING_TRUNK
       }
-    } else if (this.current === this.READING_TRUNK) {
+    } else if (this.current === this.READING_TRUNK) { // 开始记录真实内容
       this.content.push(char)
       this.length--
-      if (this.length === 0) {
+      this.a++
+      // console.log(this.length, this.a, char === ' ' ? '空格' : char === '\r' ? 'r' : char === '\n' ? 'n' : char)
+      if (this.length === 0) { // 消息完了
         this.current = this.WAITING_NEW_LINE
       }
-    } else if (this.current === this.WAITING_NEW_LINE) {
+    } else if (this.current === this.WAITING_NEW_LINE) { // 消息刚完，等待回车 \r
       if (char === '\r') {
         this.current = this.WAITING_NEW_LINE_END
       }
-    } else if (this.current === this.WAITING_NEW_LINE_END) {
+    } else if (this.current === this.WAITING_NEW_LINE_END) { // 全完了，回归
       if (char === '\n') {
         this.current = this.WAITING_LENGTH
       }
@@ -207,6 +214,7 @@ void async function() {
       name: 'winter',
     },
   })
+  console.log('开始')
 
   try {
     let response = await request.send()

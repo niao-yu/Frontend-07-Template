@@ -13,7 +13,29 @@ let server = function (request, response) {
     body = Buffer.concat(body).toString() // {object} 接收的数据
     console.log(body)
     response.writeHead(200, {'Content-Type': 'text/html'}) // 把数据返回给前台
-    response.end('Hello world')
+    response.end(`
+<!DOCTYPE html>
+  <html lang="zh">
+  <head>
+    <title>Document</title>
+    <meta charset="UTF-8">
+    <style>
+      body {
+        padding: 0;
+      }
+      span {
+        background-color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <p>p</p>
+      <span>span</span>
+    </div>
+  </body>
+</html>
+    `)
   })
 }
 
