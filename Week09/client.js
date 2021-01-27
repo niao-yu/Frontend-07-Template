@@ -92,7 +92,7 @@ class ResponseParser {
   }
 
   receive(string) {
-    console.log(string)
+    // console.log(string)
     for (let i = 0; i < string.length; i++) {
       this.receiveChar(string.charAt(i));
     }

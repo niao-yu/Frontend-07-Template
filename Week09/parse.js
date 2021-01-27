@@ -1,6 +1,7 @@
 const EOF = Symbol('EOF')
 
 let currentToken = null;
+let currentAttribute = null; // 记录属性的
 
 function emit(token) {
   console.log(token)
@@ -70,15 +71,122 @@ function tagName(char) {
 
 // 开始输入属性
 function beforeAttributeName(char) {
-  if (char.match(/^[a-zA-Z]$/)) {
+  if (char.match(/^[\t\n\f ]$/)) { // 即将开始输入属性名（可能多个空格）
     return beforeAttributeName
-  } else if (char === '>') { // 属性名输完了，且结束了开始标签的数据
-    return data
+  } else if (char === '>' || char === '/' || char === EOF) { // 属性名输完了，且结束了开始标签的数据
+    return afterAttributeName(char);
   } else if (char === '=') {
-    return beforeAttributeName
   } else {
-    return beforeAttributeName
+    currentAttribute = {
+      name: '',
+      value: '',
+    }
+    return attributeName(char) // 去接收属性名
   }
+}
+
+// 接收属性名
+function attributeName(char) {
+  if (char.match(/^[\t\n\f ]$/) || char === '/' || char === '>' || char === EOF) { // 属性名输入完了
+    return afterAttributeName(char)
+  } else if (char === '=') { // 准备输入属性值了
+    return beforeAttributeValue
+  } else if (char === '\u0000') { // 即将开始输入属性名（可能多个空格）
+
+  } else if (char === '"' || char === "'" || char === '<') {
+
+  } else {
+    currentAttribute.name += char
+    return attributeName
+  }
+}
+
+// 即将输入属性值
+function beforeAttributeValue(char) {
+  if (char.match(/^[\t\n\f ]$/) || char === '/' || char === '>' || char === EOF) { // 属性名输入完了
+    return beforeAttributeValue
+  } else if (char === '"') { // 是双引号的属性值
+    return doubleQuotedAttributeValue;
+  } else if (char === "'") { // 是单引号的属性值
+    return singleQuotedAttributeValue;
+  } else { // 没有写引号，直接写的值，也是合法的写法
+    return UnquotedAttributeValue(char)
+  }
+}
+
+// 是双引号的属性值
+function doubleQuotedAttributeValue(char) {
+  if (char === '"') { // 遇到了另一个 "，写完了这个属性
+    currentToken[currentAttribute.name] = currentAttribute.value
+  } else if (char === '\u0000') {
+
+  } else if (char === EOF) {
+
+  } else {
+    currentAttribute.value += char
+    return doubleQuotedAttributeValue
+  }
+}
+
+// 是单引号的属性值
+function singleQuotedAttributeValue(char) {
+  if (char === "'") { // 遇到了另一个 "，写完了这个属性
+    currentToken[currentAttribute.name] = currentAttribute.value
+  } else if (char === '\u0000') {
+
+  } else if (char === EOF) {
+
+  } else {
+    currentAttribute.value += char
+    return doubleQuotedAttributeValue
+  }
+}
+
+// 写了值
+function UnquotedAttributeValue(char) {
+  if (char.match(/^[\t\n\f ]$/)) { // 遇到了另一个 "，写完了这个属性
+    currentToken[currentAttribute.name] = currentAttribute.value
+    return beforeAttributeName
+  } else if (char === '/') {
+    currentToken[currentAttribute.name] = currentAttribute.value
+    return selfClosingStartTag
+  } else if (char === '>') {
+    currentToken[currentAttribute.name] = currentAttribute.value
+    emit(currentToken)
+    return data
+  } else if (char === '\u0000') {
+
+  } else if (char === EOF) {
+
+  } else {
+    currentAttribute.value += char
+    return UnquotedAttributeValue
+  }
+}
+
+// 属性名输入完成
+function afterAttributeName(char) {
+  if (char.match(/^[\t\n\f ]$/)) {
+    return afterAttributeName;
+  } else if (char === '/') {
+    return selfClosingStartTag
+  } else if (char === '=') {
+    return beforeAttributeValue
+  } else if (char === '>') {
+    currentToken[currentAttribute.name] = currentAttribute.value
+    emit(currentToken)
+    return data
+  } else if (char === EOF) {
+
+  } else {
+    currentToken[currentAttribute.name] = currentAttribute.value
+    currentAttribute = {
+      naem: '',
+      value: '',
+    }
+    return attributeName(char)
+  }
+
 }
 
 function selfClosingStartTag(char) {
