@@ -1,10 +1,14 @@
 const EOF = Symbol('EOF')
+const css = require('css');
+const { resourceLimits } = require('worker_threads');
+const rules = []
 
 let currentToken = null;
 let currentAttribute = null; // 记录属性的
 const stack = [{type: 'document', children: []}]
 let currentTextNode = null
 
+// 接受并生成虚拟dom
 function emit(token) {
   let top = stack[stack.length - 1]
 
@@ -36,6 +40,10 @@ function emit(token) {
     currentTextNode = null
   } else if (token.type === 'endTag') {
     if (top.tagName === token.tagName) {
+      // 收集并解析 css style 规则
+      if (top.tagName === 'style') {
+        addCSSRules(top.children[0].content)
+      }
       stack.pop()
     } else {
       throw new Error(`标签头尾不对应：${top.tagName}, ${token.tagName}`)
@@ -49,9 +57,14 @@ function emit(token) {
       }
       top.children.push(currentTextNode)
     }
-    console.log(token.content)
     currentTextNode.content += token.content
   }
+}
+
+// 收集并解析 css style 规则
+function addCSSRules(text) {
+  let ast = css.parse(text)
+  rules.push(...ast.stylesheet.rules)
 }
 
 function data(char) {
@@ -256,5 +269,5 @@ module.exports.parseHtml = function parseHTML(html) {
     state = state(char)
   }
   state = state(EOF)
-  console.log(stack[0])
+  // console.log(stack[0])
 }
