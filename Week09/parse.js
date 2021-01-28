@@ -11,7 +11,7 @@ let currentTextNode = null
 // 接受并生成虚拟dom
 function emit(token) {
   let top = stack[stack.length - 1]
-  console.log(token)
+  // console.log(token)
 
   if (token.type === 'startTag') {
     let element = {
@@ -73,7 +73,7 @@ function addCSSRules(text) {
 
 // 计算 css 规则
 function computeCSS(element) {
-  console.log('计算css规则')
+  // console.log('计算css规则')
   // 深拷贝一层栈数组，并反转数组，也就是把dom元素，从内向外依次匹配css规则
   let elements = stack.slice().reverse()
 
@@ -82,24 +82,29 @@ function computeCSS(element) {
   }
 
   for (let rule of rules) {
-    let selectorParts = rule.selectors[0].split(' ').reverse()
-    if (!match(element, selectorParts[0])) continue
-
-    let matched = false
-    let j = 1
-
-    for (let i = 0; i < elements.length; i++) {
-      if (match(elements[i], selectorParts[j])) {
-        j++
+    for (let selectors of rule.selectors) {
+      let selectorParts = selectors.split(' ').reverse()
+      // 如果当前元素不是这个选择器的目标，直接 continue
+      if (!match(element, selectorParts[0])) continue
+  
+      let matched = false
+      let j = 1
+  
+      for (let i = 0; i < elements.length; i++) {
+        if (match(elements[i], selectorParts[j])) {
+          j++
+        }
       }
-    }
-    // 全匹配到了
-    if (j >= selectorParts.length) {
-      matched = true
-    }
+      // 全匹配到了
+      if (j >= selectorParts.length) {
+        matched = true
+        console.log(element, selectorParts)
+      }
+  
+      if (matched) {
+        console.log('匹配好了')
+      }
 
-    if (matched) {
-      console.log('匹配好了')
     }
   }
 }
@@ -109,23 +114,33 @@ function computeCSS(element) {
 function match(element, selector) {
   // 条件判断，必须有 attributes
   if (!selector || !element.attributes) return false
+  let selectorArr = selector.match(/^([^.^#]+)|(\.[^.^#]+)|(\#[^.^#]+)/g)
 
-  if (selector.charAt(0) === '#') { // 是 id 选择器
-    let attr = element.attributes.find(attr => attr.name === 'id')
+  if (!selectorArr) return false
+  
+  for (let _selector of selectorArr) {
+    let thisOk = false
 
-    if (attr && attr.value === selector.replace('#', '')) return true
-  } else if (selector.charAt(0) === '.') { // 是 类选择器
-    let attr = element.attributes.find(attr => attr.name === 'class')
-    
-    if (attr && attr.value === selector.replace('.', '')) {
-      return true
+    if (_selector.charAt(0) === '#') { // 是 id 选择器
+      let attr = element.attributes.find(attr => attr.name === 'id')
+  
+      if (attr && attr.value === _selector.replace('#', '')) {
+        thisOk = true
+      }
+    } else if (_selector.charAt(0) === '.') { // 是 类选择器
+      let attr = element.attributes.find(attr => attr.name === 'class')
+      
+      if (attr && attr.value === _selector.replace('.', '')) {
+        thisOk = true
+      }
+    } else { // 是 tagName 选择器
+      if (element.tagName === _selector) {
+        thisOk = true
+      }
     }
-  } else { // 是 tagName 选择器
-    if (element.tagName === selector) {
-      return true
-    }
+    if (!thisOk) return false
   }
-  return false
+  return true
 }
 
 function data(char) {
