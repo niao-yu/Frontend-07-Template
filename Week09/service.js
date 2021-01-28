@@ -19,11 +19,13 @@ let server = function (request, response) {
     <title>Document</title>
     <meta charset=UTF-8/>
     <style>
-      body div p.pC#pI, body div span {
-        padding: line-height: 100px;
+      body div p.pC#pI, body div .span {
+        line-height: 100px;
+        padding-top: 200px;
       }
-      .span {
+      span {
         background-color: red;
+        line-height: 200px;
       }
     </style>
   </head>

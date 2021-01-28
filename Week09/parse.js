@@ -1,6 +1,5 @@
 const EOF = Symbol('EOF')
 const css = require('css');
-const { resourceLimits } = require('worker_threads');
 const rules = []
 
 let currentToken = null;
@@ -77,13 +76,13 @@ function computeCSS(element) {
   // 深拷贝一层栈数组，并反转数组，也就是把dom元素，从内向外依次匹配css规则
   let elements = stack.slice().reverse()
 
-  if (!element.computeStyle) {
-    element.computeStyle = {}
+  if (!element.computedStyle) {
+    element.computedStyle = {}
   }
 
   for (let rule of rules) {
     for (let selectors of rule.selectors) {
-      let selectorParts = selectors.split(' ').reverse()
+      let selectorParts = selectors.split(' ').reverse() // 一个组合的选择器
       // 如果当前元素不是这个选择器的目标，直接 continue
       if (!match(element, selectorParts[0])) continue
   
@@ -98,15 +97,59 @@ function computeCSS(element) {
       // 全匹配到了
       if (j >= selectorParts.length) {
         matched = true
-        console.log(element, selectorParts)
+        // console.log(element, selectorParts)
       }
   
       if (matched) {
-        console.log('匹配好了')
+        let computedStyle = element.computedStyle
+        for (let declaration of rule.declarations) {
+          // console.log(declaration)
+          // console.log(selectorParts)
+          let sp = specificity(selectorParts) // 计算权重
+          if (!computedStyle[declaration.property]) { // 还没有设置过
+            computedStyle[declaration.property] = {}
+            computedStyle[declaration.property].value = declaration.value
+            computedStyle[declaration.property].specificity = sp
+          } else if (compare(computedStyle[declaration.property].specificity, sp) < 0) { // 设置过了，需要对比一下权重，再看是否需要覆盖样式
+            computedStyle[declaration.property].value = declaration.value
+            computedStyle[declaration.property].specificity = sp
+          }
+        }
+        console.log(element.computedStyle)
       }
-
     }
   }
+}
+
+// 计算权重
+function specificity(selectorParts) {
+  let allSelect = []
+  for (let selectorPart of selectorParts) {
+    allSelect.push(...parseSelect(selectorPart))
+  }
+
+  let spArr = new Array(4).fill(0) // [0, 0, 0 ,0]
+  for (let onSelect of allSelect) {
+    if (onSelect.charAt(0) === '.') spArr[2]++
+    else if (onSelect.charAt(0) === '#') spArr[1]++
+    else spArr[3]++
+  }
+  return spArr
+}
+
+// 比较权重
+function compare(sp_1, sp_2) {
+  for (let i = 0; i < 4; i++) {
+    let space = sp_1[i] - sp_2[i]
+    if (space < 0) return -1
+    else if (space > 0) return 1
+  }
+  return 0
+}
+
+// 分解一个选择器
+function parseSelect(str) {
+  return str.match(/^([^.^#]+)|(\.[^.^#]+)|(\#[^.^#]+)/g) || []
 }
 
 // 对比当前dom和规则是否匹配
@@ -114,9 +157,9 @@ function computeCSS(element) {
 function match(element, selector) {
   // 条件判断，必须有 attributes
   if (!selector || !element.attributes) return false
-  let selectorArr = selector.match(/^([^.^#]+)|(\.[^.^#]+)|(\#[^.^#]+)/g)
+  let selectorArr = parseSelect(selector)
 
-  if (!selectorArr) return false
+  if (!selectorArr.length) return false
   
   for (let _selector of selectorArr) {
     let thisOk = false
@@ -348,5 +391,6 @@ module.exports.parseHtml = function parseHTML(html) {
   }
   // console.log(rules)
   state = state(EOF)
-  // console.log(stack[0])
+  console.log(stack[0])
+  // console.log(JSON.stringify(stack[0], null, '  '))
 }
