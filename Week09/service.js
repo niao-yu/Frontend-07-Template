@@ -19,18 +19,18 @@ let server = function (request, response) {
     <title>Document</title>
     <meta charset=UTF-8/>
     <style>
-      body {
-        padding: 0;
+      body div p.pC#pI, body div span {
+        padding: line-height: 100px;
       }
-      span {
+      .span {
         background-color: red;
       }
     </style>
   </head>
   <body>
     <div>
-      <p name=p>p</p>
-      <span>span</span>
+      <p class='pC' id="pI">p</p>
+      <span class="span">span</span>
       <img src=fff alt=sdf />
     </div>
   </body>

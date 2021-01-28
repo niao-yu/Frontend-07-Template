@@ -11,6 +11,7 @@ let currentTextNode = null
 // 接受并生成虚拟dom
 function emit(token) {
   let top = stack[stack.length - 1]
+  console.log(token)
 
   if (token.type === 'startTag') {
     let element = {
@@ -29,6 +30,9 @@ function emit(token) {
         })
       }
     }
+
+    // 计算 css 规则
+    computeCSS(element)
 
     top.children.push(element)
     element.parent = top
@@ -65,6 +69,63 @@ function emit(token) {
 function addCSSRules(text) {
   let ast = css.parse(text)
   rules.push(...ast.stylesheet.rules)
+}
+
+// 计算 css 规则
+function computeCSS(element) {
+  console.log('计算css规则')
+  // 深拷贝一层栈数组，并反转数组，也就是把dom元素，从内向外依次匹配css规则
+  let elements = stack.slice().reverse()
+
+  if (!element.computeStyle) {
+    element.computeStyle = {}
+  }
+
+  for (let rule of rules) {
+    let selectorParts = rule.selectors[0].split(' ').reverse()
+    if (!match(element, selectorParts[0])) continue
+
+    let matched = false
+    let j = 1
+
+    for (let i = 0; i < elements.length; i++) {
+      if (match(elements[i], selectorParts[j])) {
+        j++
+      }
+    }
+    // 全匹配到了
+    if (j >= selectorParts.length) {
+      matched = true
+    }
+
+    if (matched) {
+      console.log('匹配好了')
+    }
+  }
+}
+
+// 对比当前dom和规则是否匹配
+// 认为只有三种选择器 类选择器 id选择器 tagName选择器
+function match(element, selector) {
+  // 条件判断，必须有 attributes
+  if (!selector || !element.attributes) return false
+
+  if (selector.charAt(0) === '#') { // 是 id 选择器
+    let attr = element.attributes.find(attr => attr.name === 'id')
+
+    if (attr && attr.value === selector.replace('#', '')) return true
+  } else if (selector.charAt(0) === '.') { // 是 类选择器
+    let attr = element.attributes.find(attr => attr.name === 'class')
+    
+    if (attr && attr.value === selector.replace('.', '')) {
+      return true
+    }
+  } else { // 是 tagName 选择器
+    if (element.tagName === selector) {
+      return true
+    }
+  }
+  return false
 }
 
 function data(char) {
@@ -178,6 +239,7 @@ function beforeAttributeValue(char) {
 function doubleQuotedAttributeValue(char) {
   if (char === '"') { // 遇到了另一个 "，写完了这个属性
     currentToken[currentAttribute.name] = currentAttribute.value
+    return beforeAttributeName
   } else if (char === '\u0000') {
 
   } else if (char === EOF) {
@@ -192,13 +254,14 @@ function doubleQuotedAttributeValue(char) {
 function singleQuotedAttributeValue(char) {
   if (char === "'") { // 遇到了另一个 "，写完了这个属性
     currentToken[currentAttribute.name] = currentAttribute.value
+    return beforeAttributeName
   } else if (char === '\u0000') {
 
   } else if (char === EOF) {
 
   } else {
     currentAttribute.value += char
-    return doubleQuotedAttributeValue
+    return singleQuotedAttributeValue
   }
 }
 
@@ -268,6 +331,7 @@ module.exports.parseHtml = function parseHTML(html) {
     // console.log(char)
     state = state(char)
   }
+  // console.log(rules)
   state = state(EOF)
   // console.log(stack[0])
 }
