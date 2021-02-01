@@ -1,5 +1,6 @@
 const EOF = Symbol('EOF')
 const css = require('css');
+const layout = require('./layout')
 const rules = []
 
 let currentToken = null;
@@ -47,6 +48,7 @@ function emit(token) {
       if (top.tagName === 'style') {
         addCSSRules(top.children[0].content)
       }
+      layout(top)
       stack.pop()
     } else {
       throw new Error(`标签头尾不对应：${top.tagName}, ${token.tagName}`)
@@ -115,7 +117,7 @@ function computeCSS(element) {
             computedStyle[declaration.property].specificity = sp
           }
         }
-        console.log(element.computedStyle)
+        // console.log(element.computedStyle)
       }
     }
   }

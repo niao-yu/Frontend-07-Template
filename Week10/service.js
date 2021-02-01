@@ -19,21 +19,25 @@ let server = function (request, response) {
     <title>Document</title>
     <meta charset=UTF-8/>
     <style>
-      body div p.pC#pI, body div .span {
-        line-height: 100px;
-        padding-top: 200px;
+      body .box {
+        display: flex;
+        width: 50px;
+        justify-content: space-between;
       }
-      span {
-        background-color: red;
-        line-height: 200px;
+      p {
+        width: 30px;
+        height: 30px;
+      }
+      div div {
+        height: 10px;
+        width: 10px;
       }
     </style>
   </head>
   <body>
-    <div>
-      <p class='pC' id="pI">p</p>
-      <span class="span">span</span>
-      <img src=fff alt=sdf />
+    <div class="box">
+      <p>p</p>
+      <div>div</div>
     </div>
   </body>
 </html>
