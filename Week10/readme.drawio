@@ -1,0 +1,134 @@
+<mxfile host="65bd71144e" modified="2021-02-02T08:43:48.132Z" agent="5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.51.0 Chrome/83.0.4103.122 Electron/9.3.3 Safari/537.36" etag="uIzfT35OuggO3a5lbh2A" version="13.10.0" type="embed">
+    <diagram id="r-B5JIyKpYSxZcPis66Z" name="第 1 页">
+        <mxGraphModel dx="946" dy="908" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#2a2a2a" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="66" value="使用状态机解析响应结果" style="rounded=0;whiteSpace=wrap;align=center;horizontal=1;verticalAlign=top;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="98" y="360" width="501" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="41" value="获取响应" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="38" target="39">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="38" value="web服务器" style="rounded=0;whiteSpace=wrap;align=center;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="360" y="70" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="40" value="使用 net 调用" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="39" target="38">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="47" value="响应结果(String)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="39">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="420" y="360" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="39" value="浏览器客户端&#10;获取响应" style="rounded=0;whiteSpace=wrap;align=center;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="360" y="200" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="65" value="解析结果" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=0.091;exitY=1.028;exitDx=0;exitDy=0;exitPerimeter=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="66">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="144" y="557" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="71" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="42" target="58">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="42" value="状态机，解析响应的整体结构&#10;new ResponseParser()" style="rounded=0;whiteSpace=wrap;align=center;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="128.5" y="400" width="200" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="72" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="58" target="42">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="58" value="状态机，解析读取消息体&#10;new TrunkedBodyParser()" style="rounded=0;whiteSpace=wrap;align=center;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="368.5" y="400" width="200" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="73" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="64" target="75">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="115" y="720" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="74" value="&lt;span style=&quot;font-size: 12px ; text-align: left&quot;&gt;body&lt;/span&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontColor=#F0F0Ff;" vertex="1" connectable="0" parent="73">
+                    <mxGeometry x="0.1909" y="1" relative="1" as="geometry">
+                        <mxPoint x="-1" y="-10" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="64" value="  解析后的响应结果(Object)&#10;  {&#10;    statusCode: String,&#10;    statusText: String,&#10;    headers: Object,&#10;    body: String,&#10;  }" style="rounded=0;whiteSpace=wrap;align=left;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="15" y="560" width="167" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="101" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="75" target="77">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="102" value="解析过程" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontColor=#F0F0Ff;" vertex="1" connectable="0" parent="101">
+                    <mxGeometry x="0.0884" y="-1" relative="1" as="geometry">
+                        <mxPoint x="-6" y="-1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="104" value="解析完成，拿到根节点Element" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="75" target="103">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="75" value="使用状态机 parseHtml，&#10;解析消息体 body，&#10;以 function data 为入口，&#10;分别判断识别标签、&#10;属性、内容等等；&#10;创建临时数组 stack[]&#10;css规则保存数组 rules[]" style="rounded=0;whiteSpace=wrap;align=center;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="15" y="730" width="167" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="81" value="发现开始标签" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="77" target="79">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="85" value="发现结束标签" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="77" target="82">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="87" value="发现文本标签" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="77" target="86">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="77" value="依次处理节点，&lt;br&gt;调用emit方法处理" style="rhombus;whiteSpace=wrap;html=1;align=center;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="254" y="750" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="92" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="79" target="99">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="54" y="960.0000000000002" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="98" value="调用computeCSS&#10;匹配一次css规则" style="edgeLabel;align=center;verticalAlign=middle;resizable=0;points=[];fontColor=#F0F0Ff;" vertex="1" connectable="0" parent="92">
+                    <mxGeometry x="-0.3086" y="-2" relative="1" as="geometry">
+                        <mxPoint x="17" y="-2" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="79" value="把标签和标签中的属性等信息&#10;整理一下，放到父节点的children数组中，&#10;同时也 push 到临时一个数组stack[]中，&#10;等待遇到该标签的结束标签，&#10;再 pop 移除改标签" style="rounded=0;whiteSpace=wrap;align=center;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="234" y="590" width="240" height="85" as="geometry"/>
+                </mxCell>
+                <mxCell id="94" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="82" target="93">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="97" value="执行一次layout，配合样式规则，计算改标签的位置" style="edgeLabel;align=center;verticalAlign=middle;resizable=0;points=[];fontColor=#F0F0Ff;" vertex="1" connectable="0" parent="94">
+                    <mxGeometry x="-0.149" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="96" value="该标签为style标签" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontColor=#F0F0Ff;" edge="1" parent="1" source="82" target="88">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="82" value="把stack[]数组pop一次，&#10;表示改标签处理完了。" style="rounded=0;whiteSpace=wrap;align=center;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="234" y="880" width="240" height="85" as="geometry"/>
+                </mxCell>
+                <mxCell id="86" value="整理内容，&#10;放到父节点的children数组中，&#10;不做其他处理" style="rounded=0;whiteSpace=wrap;align=center;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="595" y="747.5" width="217" height="85" as="geometry"/>
+                </mxCell>
+                <mxCell id="88" value="调用 addCSSRules方法，使用插件 css，解析并收集样式，&#10;存放于css规则保存数组 rules[] 中" style="rounded=0;whiteSpace=wrap;align=center;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="595" y="880" width="217" height="85" as="geometry"/>
+                </mxCell>
+                <mxCell id="93" value="只处理了 display: flex 的位置规则，&#10;根据不同的flex的位置相关的css属性，&#10;计算当前标签盒子的位置，置于 style 属性中" style="rounded=0;whiteSpace=wrap;align=center;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="234" y="1050" width="240" height="85" as="geometry"/>
+                </mxCell>
+                <mxCell id="99" value="拿到当前标签名和类名、id等，&#10;遍历 rules[] 和该标签的父标签们，&#10;若当前标签匹配规则，且权重足够，&#10;则把对应的样式，赋值到该标签对象的 computedStyle{} 属性中" style="rounded=0;whiteSpace=wrap;align=center;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="595" y="590" width="217" height="85" as="geometry"/>
+                </mxCell>
+                <mxCell id="103" value="使用images 插件，创建画板、创建dom、设定尺寸、颜色、位置，画入画板中，保存画板到图片文件" style="rounded=0;whiteSpace=wrap;align=center;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="15" y="940" width="167" height="105" as="geometry"/>
+                </mxCell>
+                <mxCell id="111" value="&lt;div style=&quot;font-size: 13px;&quot;&gt;主要流程：&lt;/div&gt;&lt;div style=&quot;font-size: 13px;&quot;&gt;&lt;br style=&quot;font-size: 13px;&quot;&gt;&lt;/div&gt;&lt;div style=&quot;font-size: 13px;&quot;&gt;1. 浏览器获取html的请求成功，得到响应信息&lt;/div&gt;&lt;div style=&quot;font-size: 13px;&quot;&gt;2. 解析消息，得到响应头和响应体。&lt;/div&gt;&lt;div style=&quot;font-size: 13px;&quot;&gt;3. 解析响应体(html内容)，遇到&lt;span style=&quot;font-size: 13px;&quot;&gt;style标签时，需把样式存储到 rules[]；遇到&lt;/span&gt;&lt;span style=&quot;font-size: 13px;&quot;&gt;dom标签时，需要把标签的属性解析出来，同时判断，是否被style的选择器选中，如果选中，则再去根据css规则，计算当前元素的位置信息，最后把该标签相关的css属性设置到虚拟dom节点中。&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;font-size: 13px;&quot;&gt;&lt;span style=&quot;font-size: 13px;&quot;&gt;4. 解析html内容完成，得到根节点虚拟dom。&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;font-size: 13px;&quot;&gt;4. 使用images插件，根据节点的位置关系和css的样式属性，绘制成图片，完成。&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;fillColor=none;fontSize=13;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="15" y="80" width="315" height="260" as="geometry"/>
+                </mxCell>
+                <mxCell id="112" value="&lt;span style=&quot;text-align: left ; font-size: 16px&quot;&gt;浏览器拿到html的响应，到输出到页面的&lt;/span&gt;&lt;span style=&quot;text-align: left ; font-size: 16px&quot;&gt;过程中的样式相关处理&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=16;fontColor=#F0F0Ff;" vertex="1" parent="1">
+                    <mxGeometry x="50" y="20" width="460" height="20" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
