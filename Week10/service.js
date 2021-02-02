@@ -21,23 +21,26 @@ let server = function (request, response) {
     <style>
       body .box {
         display: flex;
-        width: 50px;
-        justify-content: space-between;
+        width: 200px;
+        justifyContent: flex-end;
+        background: rgb(255,255,255);
       }
       p {
-        width: 30px;
-        height: 30px;
+        width: 100px;
+        height: 100px;
+        background: rgb(255,0,0);
       }
       div div {
-        height: 10px;
-        width: 10px;
+        width: 50px;
+        height: 50px;
+        background: rgb(0,123,0);
       }
     </style>
   </head>
   <body>
     <div class="box">
-      <p>p</p>
-      <div>div</div>
+      <p></p>
+      <div></div>
     </div>
   </body>
 </html>

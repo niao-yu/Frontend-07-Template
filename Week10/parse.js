@@ -393,6 +393,7 @@ module.exports.parseHtml = function parseHTML(html) {
   }
   // console.log(rules)
   state = state(EOF)
-  console.log(stack[0])
+  // console.log(stack[0])
+  return stack[0]
   // console.log(JSON.stringify(stack[0], null, '  '))
 }
