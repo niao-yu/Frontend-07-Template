@@ -1,5 +1,11 @@
 # 学习笔记
 
+## css 属性分类
+
+叫当前目录下文件：css 属性分类.xmind
+
+参考于[https://www.cnblogs.com/jeff2020/p/13903539.html](https://www.cnblogs.com/jeff2020/p/13903539.html)
+
 ## css 盒模型
 
 FC 的含义，就是Fomatting Context，它是 CSS2.1 规范中的一个概念，它是页面中的一块渲染区域，而且有一套渲染规则，它决定了其子元素将怎样定位，FC 会根据布局自动形成，包括以下两个常见的 FC：
