@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack-cli --config ./webpack.config.js"
+    "build": "webpack-cli --config ./webpack.config.js",
+    "dev": "webpack serve --config ./webpack.config.js"
   },
   "author": "",
   "license": "ISC",
@@ -16,5 +17,8 @@
     "babel-loader": "^8.2.2",
     "webpack": "^5.24.4",
     "webpack-cli": "^4.5.0"
+  },
+  "dependencies": {
+    "webpack-dev-server": "^3.11.2"
   }
 }
