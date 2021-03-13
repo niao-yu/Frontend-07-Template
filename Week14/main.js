@@ -9,12 +9,36 @@ class Carousel extends Component {
   }
   render() {
     this.root = document.createElement('div')
+    this.root.classList.add(this.attributes.class)
     let imgs = this.attributes.src
     for (let src of imgs) {
-      let imgDom = document.createElement('img')
-      imgDom.src = src
-      this.root.appendChild(imgDom)
+      let divDom = document.createElement('div')
+      divDom.style.backgroundImage = `url('${src}')`
+      divDom.classList.add('item')
+      this.root.appendChild(divDom)
     }
+
+    // 设置轮播
+    let nowIndex = 0
+    let timer = setInterval(() => {
+      let nextIndex = (nowIndex + 1) % imgs.length
+
+      let nowDom = this.root.childNodes[nowIndex]
+      let nextDom = this.root.childNodes[nextIndex]
+
+      nextDom.style.transition = 'none'
+      nextDom.style.transform = `translateX(${ -100 * nextIndex + 100 }%)`
+      setTimeout(() => {
+        nextDom.style.transition = ''
+
+        nowDom.style.transform = `translateX(${ -100 * nowIndex - 100 }%)`
+        nextDom.style.transform = `translateX(${ -100 * nextIndex }%)`
+
+        nowIndex = nextIndex
+      }, 16);
+    }, 3000);
+
+
     return this.root
   }
   mountTo(parent) {
@@ -29,7 +53,7 @@ let imgs = [
   'https://static001.geekbang.org/resource/image/73/e4/730ea9c393def7975deceb48b3eb6fe4.jpg',
 ]
 let a = (
-  <Carousel src={imgs}></Carousel>
+  <Carousel class="carouselBox" src={imgs}></Carousel>
 )
 
 
