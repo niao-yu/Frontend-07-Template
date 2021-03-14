@@ -11,32 +11,67 @@ class Carousel extends Component {
     this.root = document.createElement('div')
     this.root.classList.add(this.attributes.class)
     let imgs = this.attributes.src
+    let children = []
     for (let src of imgs) {
       let divDom = document.createElement('div')
       divDom.style.backgroundImage = `url('${src}')`
       divDom.classList.add('item')
+      children.push(divDom)
       this.root.appendChild(divDom)
     }
 
+    let position = 0
+
+    this.root.addEventListener('mousedown', function(event) {
+      let startX = event.clientX
+
+      document.addEventListener('mousemove', mousemove)
+      document.addEventListener('mouseup', mouseup)
+      
+      function mousemove(event) {
+        let clientX = event.clientX
+        let space = clientX - startX
+
+        for (let child of children) {
+          child.style.transition = 'none'
+          child.style.transform = `translateX(${ position * 500 + space }px)`
+        }
+      }
+      function mouseup(event) {
+        let clientX = event.clientX
+        let space = clientX - startX
+
+        position = Math.round((position * 500 + space) / 500)
+
+        for (let child of children) {
+          child.style.transition = ''
+          child.style.transform = `translateX(${ position * 500 }px)`
+        }
+
+        document.removeEventListener('mousemove', mousemove)
+        document.removeEventListener('mouseup', mouseup)
+      }
+    })
+
     // 设置轮播
-    let nowIndex = 0
-    let timer = setInterval(() => {
-      let nextIndex = (nowIndex + 1) % imgs.length
+    // let nowIndex = 0
+    // let timer = setInterval(() => {
+    //   let nextIndex = (nowIndex + 1) % imgs.length
 
-      let nowDom = this.root.childNodes[nowIndex]
-      let nextDom = this.root.childNodes[nextIndex]
+    //   let nowDom = children[nowIndex]
+    //   let nextDom = children[nextIndex]
 
-      nextDom.style.transition = 'none'
-      nextDom.style.transform = `translateX(${ -100 * nextIndex + 100 }%)`
-      setTimeout(() => {
-        nextDom.style.transition = ''
+    //   nextDom.style.transition = 'none'
+    //   nextDom.style.transform = `translateX(${ -100 * nextIndex + 100 }%)`
+    //   setTimeout(() => {
+    //     nextDom.style.transition = ''
 
-        nowDom.style.transform = `translateX(${ -100 * nowIndex - 100 }%)`
-        nextDom.style.transform = `translateX(${ -100 * nextIndex }%)`
+    //     nowDom.style.transform = `translateX(${ -100 * nowIndex - 100 }%)`
+    //     nextDom.style.transform = `translateX(${ -100 * nextIndex }%)`
 
-        nowIndex = nextIndex
-      }, 16);
-    }, 3000);
+    //     nowIndex = nextIndex
+    //   }, 16);
+    // }, 3000);
 
 
     return this.root
