@@ -31,21 +31,34 @@ class Carousel extends Component {
       function mousemove(event) {
         let clientX = event.clientX
         let space = clientX - startX
+        // if (space > 500) space = 500
+        // if (space < -500) space = -500
 
-        for (let child of children) {
-          child.style.transition = 'none'
-          child.style.transform = `translateX(${ position * 500 + space }px)`
+        let current = position - (space - space % 500) / 500
+
+        for (let offset of [-1, 0, 1]) {
+          let nowPostion = current + offset
+          nowPostion = (nowPostion + children.length) % children.length
+
+          children[nowPostion].style.transition = 'none'
+          children[nowPostion].style.transform = `translateX(${ -nowPostion * 500 + offset * 500 + space }px)`
         }
       }
+
       function mouseup(event) {
         let clientX = event.clientX
         let space = clientX - startX
+        // if (space > 500) space = 500
+        // if (space < -500) space = -500
 
-        position = Math.round((position * 500 + space) / 500)
+        position = position - Math.round(space / 500)
 
-        for (let child of children) {
-          child.style.transition = ''
-          child.style.transform = `translateX(${ position * 500 }px)`
+        for (let offset of [0, -Math.sign(Math.round(space / 500) - space + 250 * Math.sign(space))]) {
+          let nowPosition = position + offset
+          nowPosition = (nowPosition + children.length) % children.length
+
+          children[nowPosition].style.transition = ''
+          children[nowPosition].style.transform = `translateX(${ -nowPosition * 500 + offset * 500 }px)`
         }
 
         document.removeEventListener('mousemove', mousemove)
