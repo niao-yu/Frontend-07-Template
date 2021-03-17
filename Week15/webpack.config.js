@@ -1,6 +1,6 @@
 
 module.exports = {
-  entry: './main.js',
+  entry: './animationdemo.js',
   mode: 'development',
   devServer: {
     //publicPath: '/dist/',
