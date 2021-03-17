@@ -13,7 +13,7 @@ let a = (
 )
 
 let timeLine = new TimeLine()
-timeLine.add(new Animation({}, 'a', 0, 100, 1000))
 timeLine.start()
+timeLine.add(new Animation({}, 'a', 0, 100, 1000, 1000))
 
 a.mountTo(document.querySelector('body'))
